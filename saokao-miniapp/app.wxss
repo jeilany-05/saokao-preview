@@ -1,0 +1,9 @@
+page {
+  background-color: #F1F6FE;
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+}

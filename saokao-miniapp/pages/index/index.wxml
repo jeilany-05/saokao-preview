@@ -1,0 +1,117 @@
+<view class="page">
+
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-back">
+      <image class="nav-back-icon" src="/images/icon-back.svg" />
+    </view>
+    <view class="nav-dots">
+      <view class="dot"></view>
+      <view class="dot"></view>
+      <view class="dot"></view>
+    </view>
+  </view>
+
+  <!-- 头部 Banner：紫色渐变背景 -->
+  <view class="header-banner">
+    <!-- 装饰星星 -->
+    <view class="star star-1"></view>
+    <view class="star star-2"></view>
+    <view class="star star-3"></view>
+
+    <!-- 年份标签 -->
+    <view class="year-badge">
+      <text class="year-decor">《</text>
+      <text class="year-text">{{year}}</text>
+      <text class="year-decor">》</text>
+    </view>
+
+    <!-- 标题 -->
+    <view class="banner-title">
+      <text>赛考计划</text>
+    </view>
+
+    <!-- 吉祥物 -->
+    <view class="mascot-area">
+      <view class="mascot-glow"></view>
+      <image class="mascot-img" src="/images/mascot.svg" mode="aspectFit" />
+      <!-- 勋章装饰 -->
+      <view class="medal medal-1">
+        <view class="medal-inner">
+          <text class="medal-icon">🏆</text>
+          <text class="medal-text">AICE</text>
+        </view>
+      </view>
+      <view class="medal medal-2">
+        <view class="medal-inner">
+          <text class="medal-text">NOC</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 说明文字 -->
+  <view class="intro-text">
+    <text>以下是猿编程赛事活动本年度的送考安排，计划参与备考活动的家长可联系班主任咨询和报名。</text>
+  </view>
+
+  <!-- 赛事列表 -->
+  <view class="contest-list">
+    <block wx:for="{{contests}}" wx:key="id">
+      <view class="contest-card" bindtap="goDetail" data-id="{{item.id}}">
+
+        <!-- 标签条 -->
+        <view class="card-tag-bar" style="background: {{item.tagColor}}">
+          <text class="card-tag-text">{{item.tag}}</text>
+        </view>
+
+        <!-- 赛事名称 -->
+        <view class="card-name-row">
+          <view class="card-icon-wrap" style="background: {{item.tagColor}}20">
+            <view class="card-icon-dot" style="background: {{item.tagColor}}"></view>
+          </view>
+          <text class="card-name">{{item.name}}</text>
+        </view>
+
+        <!-- 主办方 -->
+        <view class="card-info-row">
+          <text class="card-info-label">主办方：</text>
+          <text class="card-info-value">{{item.organizer}}</text>
+        </view>
+
+        <!-- 赛事介绍 -->
+        <view class="card-info-row">
+          <text class="card-info-label">赛事介绍：</text>
+          <text class="card-info-value">{{item.intro}}</text>
+        </view>
+
+        <!-- 赛事安排 -->
+        <view class="card-schedule-title">赛事安排：</view>
+        <view class="card-schedule-row">
+          <view
+            wx:for="{{item.schedules}}"
+            wx:for-item="sch"
+            wx:key="label"
+            class="schedule-item {{sch.type}}"
+          >
+            <view class="schedule-dot-wrap">
+              <view class="schedule-dot"></view>
+              <view class="schedule-line" wx:if="{{index < item.schedules.length - 1}}"></view>
+            </view>
+            <view class="schedule-badge">
+              <text class="schedule-label">{{sch.label}}</text>
+            </view>
+            <text class="schedule-sublabel" wx:if="{{sch.sublabel}}">{{sch.sublabel}}</text>
+          </view>
+        </view>
+
+      </view>
+    </block>
+  </view>
+
+  <!-- 注释 -->
+  <view class="footer-note">
+    <text>注：具体时间以官方公布为准</text>
+  </view>
+
+</view>

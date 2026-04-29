@@ -1,0 +1,144 @@
+<view class="page">
+
+  <!-- 顶部紫色 Banner -->
+  <view class="detail-header" style="background: {{contest.tagColor}}">
+    <!-- 导航栏 -->
+    <view class="nav-bar">
+      <view class="nav-back" bindtap="goBack">
+        <view class="back-arrow"></view>
+      </view>
+      <view class="nav-share" bindtap="toggleShare">
+        <view class="share-dot"></view>
+        <view class="share-dot"></view>
+        <view class="share-dot"></view>
+      </view>
+    </view>
+
+    <!-- 标签 -->
+    <view class="header-tag">
+      <text class="header-tag-text">{{contest.tag}}</text>
+    </view>
+
+    <!-- 赛事名称 -->
+    <text class="header-title">{{contest.name}}</text>
+
+    <!-- 主办方 -->
+    <view class="header-org-row">
+      <text class="header-org-label">主办方</text>
+      <text class="header-org-value">{{contest.organizer}}</text>
+    </view>
+  </view>
+
+  <!-- 内容区 -->
+  <view class="content">
+
+    <!-- 赛事简介 -->
+    <view class="section">
+      <view class="section-title-row">
+        <view class="section-bar" style="background: {{contest.tagColor}}"></view>
+        <text class="section-title">赛事简介</text>
+      </view>
+      <text class="section-text">{{contest.coverDesc}}</text>
+    </view>
+
+    <!-- 赛事亮点 -->
+    <view class="section">
+      <view class="section-title-row">
+        <view class="section-bar" style="background: {{contest.tagColor}}"></view>
+        <text class="section-title">赛事亮点</text>
+      </view>
+      <view class="highlights-grid">
+        <view
+          wx:for="{{contest.highlights}}"
+          wx:key="title"
+          class="highlight-item"
+        >
+          <view class="highlight-icon-wrap" style="background: {{contest.tagColor}}15">
+            <text class="highlight-icon">{{item.icon}}</text>
+          </view>
+          <text class="highlight-title">{{item.title}}</text>
+          <text class="highlight-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 赛事安排 -->
+    <view class="section">
+      <view class="section-title-row">
+        <view class="section-bar" style="background: {{contest.tagColor}}"></view>
+        <text class="section-title">赛事安排</text>
+      </view>
+      <view class="schedule-row">
+        <view
+          wx:for="{{contest.schedules}}"
+          wx:key="label"
+          class="schedule-item {{item.type}}"
+          style="--theme: {{contest.tagColor}}"
+        >
+          <view class="schedule-dot-wrap">
+            <view class="schedule-dot"></view>
+            <view class="schedule-line" wx:if="{{index < contest.schedules.length - 1}}"></view>
+          </view>
+          <view class="schedule-badge">
+            <text class="schedule-label">{{item.label}}</text>
+          </view>
+          <text class="schedule-sublabel" wx:if="{{item.sublabel}}">{{item.sublabel}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 报名信息 -->
+    <view class="section">
+      <view class="section-title-row">
+        <view class="section-bar" style="background: {{contest.tagColor}}"></view>
+        <text class="section-title">报名说明</text>
+      </view>
+      <view class="info-card">
+        <view class="info-item">
+          <text class="info-icon">📋</text>
+          <text class="info-text">{{contest.registerNote}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-icon">🏆</text>
+          <text class="info-text">{{contest.prizeNote}}</text>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 底部报名按钮 -->
+  <view class="footer-btn-wrap">
+    <view class="footer-btn" style="background: {{contest.tagColor}}" bindtap="toggleShare">
+      <text class="footer-btn-text">咨询班主任报名</text>
+    </view>
+  </view>
+
+  <!-- 分享底部弹窗 -->
+  <view class="share-mask" wx:if="{{showShare}}" bindtap="closeShare"></view>
+  <view class="share-sheet {{showShare ? 'show' : ''}}">
+    <view class="share-sheet-title">分享赛事</view>
+    <view class="share-options">
+      <view class="share-option" open-type="share">
+        <view class="share-option-icon" style="background: #07C160">
+          <text class="share-option-emoji">💬</text>
+        </view>
+        <text class="share-option-label">微信好友</text>
+      </view>
+      <view class="share-option">
+        <view class="share-option-icon" style="background: #FA5151">
+          <text class="share-option-emoji">📣</text>
+        </view>
+        <text class="share-option-label">朋友圈</text>
+      </view>
+      <view class="share-option">
+        <view class="share-option-icon" style="background: {{contest.tagColor}}">
+          <text class="share-option-emoji">🔗</text>
+        </view>
+        <text class="share-option-label">复制链接</text>
+      </view>
+    </view>
+    <view class="share-cancel" bindtap="closeShare">取消</view>
+  </view>
+
+</view>

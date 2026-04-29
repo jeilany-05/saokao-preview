@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 280" width="260" height="280">
+  <!-- 猿编程吉祥物占位：简化卡通机器人/小猿 -->
+  <!-- 身体 -->
+  <ellipse cx="130" cy="200" rx="70" ry="60" fill="#FFA500" opacity="0.9"/>
+  <!-- 头部 -->
+  <circle cx="130" cy="120" r="70" fill="#FFB84D"/>
+  <!-- 眼睛 -->
+  <circle cx="108" cy="115" r="14" fill="white"/>
+  <circle cx="152" cy="115" r="14" fill="white"/>
+  <circle cx="112" cy="117" r="8" fill="#333"/>
+  <circle cx="156" cy="117" r="8" fill="#333"/>
+  <!-- 高光 -->
+  <circle cx="115" cy="113" r="3" fill="white"/>
+  <circle cx="159" cy="113" r="3" fill="white"/>
+  <!-- 鼻子 -->
+  <ellipse cx="130" cy="132" rx="8" ry="6" fill="#E88A00"/>
+  <!-- 嘴巴 -->
+  <path d="M112 148 Q130 164 148 148" stroke="#C77B00" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- 耳朵 -->
+  <circle cx="64" cy="108" r="18" fill="#FFB84D"/>
+  <circle cx="64" cy="108" r="10" fill="#FF8C00" opacity="0.6"/>
+  <circle cx="196" cy="108" r="18" fill="#FFB84D"/>
+  <circle cx="196" cy="108" r="10" fill="#FF8C00" opacity="0.6"/>
+  <!-- 帽子 -->
+  <rect x="75" y="62" width="110" height="12" rx="6" fill="#694EF0"/>
+  <rect x="90" y="20" width="80" height="48" rx="10" fill="#694EF0"/>
+  <text x="130" y="54" text-anchor="middle" font-size="22" fill="white" font-weight="bold">AI</text>
+  <!-- 手臂 -->
+  <ellipse cx="60" cy="195" rx="18" ry="36" fill="#FFA500" transform="rotate(-20 60 195)"/>
+  <ellipse cx="200" cy="195" rx="18" ry="36" fill="#FFA500" transform="rotate(20 200 195)"/>
+  <!-- 腿 -->
+  <rect x="100" y="248" width="24" height="28" rx="12" fill="#FF8C00"/>
+  <rect x="136" y="248" width="24" height="28" rx="12" fill="#FF8C00"/>
+  <!-- 星星装饰 -->
+  <text x="40" y="70" font-size="20" fill="#FFD700" opacity="0.8">★</text>
+  <text x="210" y="80" font-size="16" fill="#FFD700" opacity="0.7">★</text>
+</svg>

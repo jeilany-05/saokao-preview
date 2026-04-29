@@ -1,0 +1,215 @@
+<!-- 首页 -->
+<view class="page">
+
+  <!-- Hero Banner：使用背景图 -->
+  <view class="hero-banner">
+    <!-- 背景图 -->
+    <image class="hero-bg-img" src="/images/banner-bg.png" mode="aspectFill" />
+
+    <!-- GO GO 装饰文字 -->
+    <text class="go-text go-text-1">GO</text>
+    <text class="go-text go-text-2">GO</text>
+
+    <!-- 闪光星星 -->
+    <text class="sparkle sp-1">✦</text>
+    <text class="sparkle sp-2">✦</text>
+    <text class="sparkle sp-3">✦</text>
+    <text class="sparkle sp-4">✦</text>
+
+    <!-- 状态栏占位 -->
+    <view class="status-bar-placeholder"></view>
+
+    <!-- 顶部导航 -->
+    <view class="nav-bar">
+      <view class="nav-dots-wrap">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+      <view class="nav-circle">
+        <view class="nav-circle-inner"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 视频区域 -->
+  <view class="video-wrap">
+    <view class="video-thumb" bindtap="playVideo">
+      <image class="video-cover" src="/images/video-thumb.png" mode="aspectFill" />
+      <view class="video-overlay">
+        <view class="play-btn">
+          <view class="play-icon"></view>
+        </view>
+      </view>
+      <!-- 左上角来源标签 -->
+      <view class="video-source-tag">
+        <view class="video-source-dot"></view>
+        <text class="video-source-text">猿编程</text>
+      </view>
+      <!-- 底部字幕条 -->
+      <view class="video-caption">
+        <text class="video-caption-text">社会对具备专业技能</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 金刚区（四宫格快捷入口） -->
+  <view class="grid-section">
+
+    <!-- 编程政策 大卡片（左侧） -->
+    <view class="grid-img-left" bindtap="goPolicy">
+      <image class="grid-img-policy" src="/images/card-policy.png" mode="aspectFill" />
+      <view class="new-badge">
+        <text class="new-badge-text">NEW</text>
+      </view>
+    </view>
+
+    <!-- 右侧列 -->
+    <view class="grid-col-right">
+      <!-- 赛考喜报 -->
+      <view class="grid-img-news" bindtap="goNews">
+        <image class="grid-img-fill" src="/images/card-news.png" mode="aspectFill" />
+      </view>
+      <!-- 底部两个 -->
+      <view class="grid-row-bottom">
+        <view class="grid-img-xs" bindtap="goCalendar">
+          <image class="grid-img-fill" src="/images/card-calendar.png" mode="aspectFill" />
+        </view>
+        <view class="grid-img-xs" bindtap="goStudent">
+          <image class="grid-img-fill" src="/images/card-student.png" mode="aspectFill" />
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 赛事路线规划 主标题 -->
+  <view class="main-section-title">
+    <text class="main-section-text">赛事路线规划</text>
+    <view class="main-section-underline"></view>
+  </view>
+
+  <!-- ---- 等级考试 ---- -->
+  <view class="cat-divider">
+    <view class="cat-line"></view>
+    <view class="cat-dot"></view>
+    <text class="cat-label">等级考试</text>
+    <view class="cat-dot"></view>
+    <view class="cat-line"></view>
+  </view>
+
+  <!-- AICE 卡片 -->
+  <view class="ccard" bindtap="goDetail" data-id="aice">
+    <view class="ccard-top">
+      <view class="ccard-logo aice-bg">
+        <image class="ccard-logo-img" src="/images/logo-aice.png" mode="aspectFit" />
+      </view>
+      <view class="ccard-titles">
+        <text class="ccard-en">AICE</text>
+        <text class="ccard-cn">青少年人工智能核心素养测评</text>
+      </view>
+    </view>
+    <text class="ccard-desc">对编程能力水平进行专业认证，获得AICE-4级及以上优秀，即可免高校AI探学营笔试，获得直通面试资格</text>
+  </view>
+
+  <!-- GESP 卡片 -->
+  <view class="ccard" bindtap="goDetail" data-id="gesp">
+    <view class="ccard-top">
+      <view class="ccard-logo gesp-bg">
+        <image class="ccard-logo-img" src="/images/logo-ccf.png" mode="aspectFit" />
+      </view>
+      <view class="ccard-titles">
+        <text class="ccard-en">GESP</text>
+        <text class="ccard-cn">CCF编程能力等级认证</text>
+      </view>
+    </view>
+    <text class="ccard-desc">是信奥赛主办方CCF主办的等级认证，最高两级考纲贴合CSPJ/S大纲</text>
+  </view>
+
+  <!-- ---- 白名单赛事 ---- -->
+  <view class="cat-divider">
+    <view class="cat-line"></view>
+    <view class="cat-dot"></view>
+    <text class="cat-label">白名单赛事</text>
+    <view class="cat-dot"></view>
+    <view class="cat-line"></view>
+  </view>
+
+  <!-- AILO 卡片 -->
+  <view class="ccard" bindtap="goDetail" data-id="ailo">
+    <view class="ccard-top">
+      <view class="ccard-logo ailo-bg">
+        <image class="ccard-logo-img" src="/images/logo-ailo.png" mode="aspectFit" />
+      </view>
+      <view class="ccard-titles">
+        <text class="ccard-en">AILO</text>
+        <text class="ccard-cn">全国青少年劳动技能与智能设计大赛</text>
+      </view>
+    </view>
+    <text class="ccard-desc">是教育部白名单赛事之一，大赛影响力强，参赛学生覆盖全国</text>
+  </view>
+
+  <!-- 蓝桥杯 卡片 -->
+  <view class="ccard" bindtap="goDetail" data-id="lanqiao">
+    <view class="ccard-top">
+      <view class="ccard-logo lq-bg">
+        <text class="ccard-logo-zh lq-color">蓝桥杯</text>
+      </view>
+      <view class="ccard-titles">
+        <text class="ccard-en">蓝桥杯</text>
+        <text class="ccard-cn">蓝桥杯全国软件和信息技术专业人才大赛</text>
+      </view>
+    </view>
+    <text class="ccard-desc">是教育部白名单赛事之一，已成功举办14届平均每年10万+中小学生参加</text>
+  </view>
+
+  <!-- CSP-J/S 卡片 -->
+  <view class="ccard" bindtap="goDetail" data-id="csp">
+    <view class="ccard-top">
+      <view class="ccard-logo csp-bg">
+        <image class="ccard-logo-img" src="/images/logo-ccf.png" mode="aspectFit" />
+      </view>
+      <view class="ccard-titles">
+        <text class="ccard-en">CSP-J/S</text>
+        <text class="ccard-cn">CCF非专业级软件能力认证</text>
+      </view>
+    </view>
+    <text class="ccard-desc">由信奥赛主办方CCF主办，是大部分地区进入中考招生优惠政策和科技特长生录取的依据</text>
+  </view>
+
+  <!-- ---- 研学活动 ---- -->
+  <view class="cat-divider">
+    <view class="cat-line"></view>
+    <view class="cat-dot"></view>
+    <text class="cat-label">研学活动</text>
+    <view class="cat-dot"></view>
+    <view class="cat-line"></view>
+  </view>
+
+  <!-- AI探学营 卡片 -->
+  <view class="ccard ai-camp-ccard" bindtap="goDetail" data-id="ai_camp">
+    <view class="ccard-top">
+      <view class="ccard-logo aicamp-bg">
+        <image class="aicamp-logo" src="/images/mascot.svg" mode="aspectFit" />
+      </view>
+      <view class="ccard-titles">
+        <text class="ccard-en">AI探学营</text>
+        <text class="ccard-cn">全国中小学人工智能探究性学习训练营</text>
+      </view>
+    </view>
+    <text class="ccard-desc">纯公益高校研学项目，营员可以与国科大、复旦大学等高校硕导博导面对面交流学习</text>
+    <!-- CTA 按钮 -->
+    <view class="aicamp-cta">
+      <view class="cta-redbox">
+        <text class="cta-redbox-text">百好礼</text>
+      </view>
+      <view class="cta-orangebtn">
+        <text class="cta-btn-text">立即参与 ▶</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 页面底部占位（tabBar高度） -->
+  <view class="page-foot"></view>
+
+</view>
