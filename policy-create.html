@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新建赛考政策</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      height: 48px;
+      background: #fff;
+      padding: 0 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-right: 40px;
+      text-decoration: none;
+    }
+    .navbar-brand .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: #4c5cff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .navbar-brand .logo-icon svg { fill: #fff; }
+    .nav-menu {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+    .nav-item {
+      padding: 0 16px;
+      height: 48px;
+      line-height: 48px;
+      cursor: pointer;
+      color: #555;
+      font-size: 14px;
+      transition: color .2s;
+    }
+    .nav-item:hover { color: #4c5cff; }
+    .nav-item.active { color: #4c5cff; border-bottom: 2px solid #4c5cff; }
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #555;
+      font-size: 13px;
+    }
+    .navbar-right .link-copy {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: #555;
+    }
+    .navbar-right .link-copy:hover { color: #4c5cff; }
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #e0e4ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #4c5cff;
+      font-weight: 600;
+    }
+    .user-info { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+    /* ── Layout ── */
+    .page-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px 40px;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 12px;
+    }
+    .breadcrumb a { color: #888; text-decoration: none; }
+    .breadcrumb a:hover { color: #4c5cff; }
+    .breadcrumb .sep { color: #ccc; }
+    .breadcrumb .current { color: #333; }
+
+    /* ── Page title ── */
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 28px 32px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* ── Form ── */
+    .form-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .form-label {
+      width: 88px;
+      min-width: 88px;
+      line-height: 32px;
+      font-size: 14px;
+      color: #333;
+      padding-right: 8px;
+      text-align: right;
+    }
+    .form-label.required::before {
+      content: "* ";
+      color: #ff4d4f;
+    }
+    .form-control-wrap {
+      flex: 1;
+    }
+    .input-with-count {
+      position: relative;
+    }
+    .input-with-count input {
+      width: 100%;
+      height: 32px;
+      padding: 0 52px 0 11px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      color: #333;
+    }
+    .input-with-count input:focus {
+      border-color: #4c5cff;
+      box-shadow: 0 0 0 2px rgba(76,92,255,.15);
+    }
+    .input-with-count input::placeholder { color: #bfbfbf; }
+    .char-count {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #bbb;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* Select */
+    .select-wrap {
+      position: relative;
+    }
+    .select-wrap select {
+      width: 100%;
+      height: 32px;
+      padding: 0 32px 0 11px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #bfbfbf;
+      appearance: none;
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .select-wrap select:focus {
+      border-color: #4c5cff;
+      box-shadow: 0 0 0 2px rgba(76,92,255,.15);
+    }
+    .select-wrap select.has-value { color: #333; }
+    .select-wrap .select-arrow {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #bbb;
+      font-size: 12px;
+    }
+
+    /* Year picker */
+    .year-wrap {
+      position: relative;
+    }
+    .year-wrap input {
+      width: 100%;
+      height: 32px;
+      padding: 0 32px 0 11px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #bfbfbf;
+      outline: none;
+      cursor: pointer;
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .year-wrap input:focus {
+      border-color: #4c5cff;
+      box-shadow: 0 0 0 2px rgba(76,92,255,.15);
+    }
+    .year-wrap input::placeholder { color: #bfbfbf; }
+    .year-wrap .cal-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #bbb;
+    }
+
+    /* Radio tag buttons */
+    .tag-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+      background: #fff;
+      user-select: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .tag-btn:hover { border-color: #4c5cff; color: #4c5cff; }
+    .tag-btn input[type="radio"] { display: none; }
+    .tag-btn.selected {
+      border-color: #4c5cff;
+      color: #4c5cff;
+      background: #f0f1ff;
+    }
+
+    /* Custom category tags */
+    .custom-tag-input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .custom-tag-input-row input {
+      width: 200px;
+      flex: none;
+      height: 32px;
+      padding: 0 11px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .custom-tag-input-row input:focus {
+      border-color: #4c5cff;
+      box-shadow: 0 0 0 2px rgba(76,92,255,.15);
+    }
+    .custom-tag-input-row input::placeholder { color: #bfbfbf; }
+    .add-tag-btn {
+      height: 32px;
+      padding: 0 14px;
+      border: 1px dashed #4c5cff;
+      border-radius: 4px;
+      background: #fff;
+      color: #4c5cff;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .add-tag-btn:hover { background: #f0f1ff; }
+    .custom-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .custom-tag-list:empty {
+      display: none;
+    }
+    .custom-tag-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #333;
+      background: #fff;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .custom-tag-item:hover { border-color: #4c5cff; color: #4c5cff; }
+    .custom-tag-item.selected {
+      border-color: #4c5cff;
+      color: #4c5cff;
+      background: #f0f1ff;
+    }
+    .custom-tag-item .del-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ff4d4f;
+      color: #fff;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+    }
+    .custom-tag-item.long-pressed .del-btn {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .custom-tag-item.long-pressing {
+      border-color: #ff4d4f;
+      animation: tag-shake .3s ease;
+    }
+    @keyframes tag-shake {
+      0%   { transform: rotate(0deg); }
+      25%  { transform: rotate(-3deg); }
+      75%  { transform: rotate(3deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .custom-tag-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    /* Delete confirm popover */
+    .del-popover {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) scale(0.9);
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      padding: 10px 14px;
+      white-space: nowrap;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s, transform .15s;
+    }
+    .del-popover.visible {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+      pointer-events: auto;
+    }
+    .del-popover::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #fff;
+      filter: drop-shadow(0 1px 0 #f0f0f0);
+    }
+    .del-popover-text {
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .del-popover-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .del-popover-actions button {
+      height: 26px;
+      padding: 0 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all .15s;
+    }
+    .del-popover-cancel {
+      background: #fff;
+      border-color: #d9d9d9 !important;
+      color: #555;
+    }
+    .del-popover-cancel:hover { border-color: #4c5cff !important; color: #4c5cff; }
+    .del-popover-confirm {
+      background: #4c5cff;
+      color: #fff;
+    }
+    .del-popover-confirm:hover { background: #3a4ae0; }
+
+    /* Section divider */
+    .section-gap { margin-top: 12px; }
+
+    /* Upload area */
+    .upload-area {
+      width: 100%;
+      min-height: 120px;
+      border: 1px dashed #d9d9d9;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      background: #fafafa;
+      transition: border-color .2s, background .2s;
+      padding: 20px;
+    }
+    .upload-area:hover {
+      border-color: #4c5cff;
+      background: #f0f1ff;
+    }
+    .upload-area .upload-icon {
+      font-size: 32px;
+      color: #bbb;
+    }
+    .upload-area .upload-text {
+      font-size: 14px;
+      color: #555;
+    }
+    .upload-area .upload-hint {
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    /* Action buttons */
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .btn {
+      height: 32px;
+      padding: 0 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      letter-spacing: .5px;
+    }
+    .btn-default {
+      background: #fff;
+      border-color: #d9d9d9;
+      color: #333;
+    }
+    .btn-default:hover { border-color: #4c5cff; color: #4c5cff; }
+    .btn-primary {
+      background: #4c5cff;
+      border-color: #4c5cff;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #3a4ae0; border-color: #3a4ae0; }
+    .btn-outline-primary {
+      background: #fff;
+      border-color: #4c5cff;
+      color: #4c5cff;
+    }
+    .btn-outline-primary:hover { background: #f0f1ff; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="navbar-brand" href="#">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h5v5H2zm7 0h5v5H9zm-7 7h5v5H2zm7 0h5v5H9z"/></svg>
+    </div>
+    Basic
+  </a>
+  <div class="nav-menu">
+    <div class="nav-item">教研平台</div>
+    <div class="nav-item">教学平台</div>
+    <div class="nav-item active">内容运营平台</div>
+    <div class="nav-item">监课平台</div>
+  </div>
+  <div class="navbar-right">
+    <div class="link-copy">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      复制文本链接
+    </div>
+    <div class="user-info">
+      <div class="user-avatar">刘</div>
+      <span>liulijiabj</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Page -->
+<div class="page-wrap">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="#">赛考</a>
+    <span class="sep">›</span>
+    <a href="policy-list.html">政策内容生产</a>
+    <span class="sep">›</span>
+    <span class="current">新建赛考政策</span>
+  </div>
+
+  <h1 class="page-title">新建赛考政策</h1>
+
+  <div class="card">
+    <!-- 基础信息 -->
+    <div class="section-title">基础信息</div>
+
+    <!-- 政策标题 -->
+    <div class="form-item">
+      <div class="form-label required">政策标题</div>
+      <div class="form-control-wrap">
+        <div class="input-with-count">
+          <input type="text" id="policyTitle" placeholder="请输入政策标题" maxlength="25"
+                 oninput="updateCount(this, 'titleCount', 25)" />
+          <span class="char-count"><span id="titleCount">0</span> / 25</span></div>
+      </div>
+    </div>
+
+    <!-- 学校名称 -->
+    <div class="form-item">
+      <div class="form-label required">学校名称</div>
+      <div class="form-control-wrap">
+        <div class="input-with-count">
+          <input type="text" id="schoolName" placeholder="请输入学校名称" maxlength="18"
+                 oninput="updateCount(this, 'schoolCount', 18)" />
+          <span class="char-count"><span id="schoolCount">0</span> / 18</span></div>
+      </div>
+    </div>
+
+    <!-- 选择地区 -->
+    <div class="form-item">
+      <div class="form-label required">选择地区</div>
+      <div class="form-control-wrap">
+        <div class="select-wrap">
+          <select id="region" onchange="this.classList.toggle('has-value', this.value !== '')">
+            <option value="">请选择地区</option>
+            <option value="beijing">北京</option>
+            <option value="shanghai">上海</option>
+            <option value="guangzhou">广州</option>
+            <option value="shenzhen">深圳</option>
+            <option value="chengdu">成都</option>
+            <option value="hangzhou">杭州</option>
+            <option value="wuhan">武汉</option>
+            <option value="xian">西安</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选择年份 -->
+    <div class="form-item">
+      <div class="form-label required">选择年份</div>
+      <div class="form-control-wrap">
+        <div class="year-wrap">
+          <input type="text" id="yearPicker" placeholder="请选择年份" readonly
+                 onclick="toggleYearPicker()" />
+          <span class="cal-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </span>
+        </div>
+        <!-- simple year picker dropdown -->
+        <div id="yearDropdown" style="display:none;position:absolute;background:#fff;border:1px solid #d9d9d9;border-radius:4px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:200;display:none;">
+          <div style="display:flex;flex-wrap:wrap;gap:4px;width:200px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选择标签 -->
+    <div class="form-item">
+      <div class="form-label required">学段标签</div>
+      <div class="form-control-wrap">
+        <div class="tag-group" id="tagGroup">
+          <label class="tag-btn" onclick="selectTag(this)">
+            <input type="radio" name="tag" value="university" /> 大学
+          </label>
+          <label class="tag-btn" onclick="selectTag(this)">
+            <input type="radio" name="tag" value="high" /> 高中
+          </label>
+          <label class="tag-btn" onclick="selectTag(this)">
+            <input type="radio" name="tag" value="junior" /> 初中
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分类自定义标签 -->
+    <div class="form-item" style="align-items:flex-start;">
+      <div class="form-label" style="line-height:30px;">招生类型</div>
+      <div class="form-control-wrap">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">
+          <div class="custom-tag-list" id="customTagList"></div>
+          <input type="text" id="customTagInput" placeholder="+ 输入标签名称，回车添加"
+                 onkeydown="if(event.key==='Enter') addCustomTag(); else setTimeout(()=>checkTagInputLength(this),0)"
+                 oninput="checkTagInputLength(this)"
+                 style="height:30px;padding:0 10px;font-size:13px;border:1px dashed #4c5cff;border-radius:4px;outline:none;color:#555;background:#fff;width:190px;transition:border-color .2s,background .2s;"
+                 onfocus="if(this.value.length<10)this.style.background='#f0f1ff';checkTagInputLength(this)"
+                 onblur="this.style.borderColor='#4c5cff';this.style.background='#fff'"
+                 onmouseenter="if(this.value.length<10)this.style.background='#f0f1ff'"
+                 onmouseleave="if(document.activeElement!==this&&this.value.length<10)this.style.background='#fff'" />
+        </div>
+        <div class="custom-tag-hint" style="margin-top:12px;">可自定义创建招生类型标签，最多同时选中2个生效；长按自定义标签可删除</div>
+      </div>
+    </div>
+
+    <!-- 内容设置 -->
+    <div class="section-title section-gap">内容设置</div>
+
+    <!-- 政策图片 -->
+    <div class="form-item">
+      <div class="form-label required">政策图片</div>
+      <div class="form-control-wrap">
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="M2 15l5-5 4 4 4-5 7 6"/>
+              <circle cx="8" cy="9" r="1.5" fill="#bbb" stroke="none"/>
+            </svg>
+          </div>
+          <div class="upload-text">点击或拖拽文件到此区域上传</div>
+          <div class="upload-hint">支持单个文件上传，格式限制：JPG/PNG/PDF，大小限制：2M</div>
+          <input id="fileInput" type="file" accept=".jpg,.jpeg,.png,.pdf" style="display:none"
+                 onchange="handleFileSelect(this)" />
+        </div>
+        <div id="filePreview" style="margin-top:8px;font-size:13px;color:#555;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button class="btn btn-default" onclick="handleCancel()">取 消</button>
+      <!-- 取消后跳回列表页在 handleCancel 中处理 -->
+      <button class="btn btn-primary" onclick="handleSave()">保 存</button>
+      <button class="btn btn-outline-primary" onclick="handleSaveAndNext()">保存并创建下一个</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateCount(input, countId, max) {
+    document.getElementById(countId).textContent = input.value.length;
+  }
+
+  function selectTag(label) {
+    document.querySelectorAll('#tagGroup .tag-btn').forEach(l => l.classList.remove('selected'));
+    label.classList.add('selected');
+  }
+
+  // Custom category tags
+  const customTags = [
+    {label: '科技特长生', preset: true, refCount: 12},
+    {label: '强基计划',   preset: true, refCount: 8},
+    {label: '自主招生',   preset: true, refCount: 5},
+    {label: '综合评价招生', preset: true, refCount: 3},
+  ];
+  const selectedCustomTags = [];  // 保持选中顺序
+
+  function checkTagInputLength(input) {
+    if (input.value.length >= 10) {
+      input.value = input.value.slice(0, 10);
+      input.style.borderColor = '#ff4d4f';
+      input.style.background = '#fff2f2';
+    } else {
+      input.style.borderColor = document.activeElement === input ? '#3a4ae0' : '#4c5cff';
+      input.style.background = '#f0f1ff';
+    }
+  }
+
+  function addCustomTag() {
+    const input = document.getElementById('customTagInput');
+    const val = input.value.trim();
+    if (!val) return;
+    if (customTags.find(t => t.label === val)) {
+      input.style.borderColor = '#ff4d4f';
+      setTimeout(() => input.style.borderColor = '#4c5cff', 1000);
+      return;
+    }
+    const customCount = customTags.filter(t => !t.preset).length;
+    if (customCount >= 2) return;
+    customTags.push({ label: val, preset: false, refCount: 0 });
+    input.value = '';
+    renderCustomTags();
+  }
+
+  let activePopover = null;
+
+  function closePopover() {
+    if (activePopover) {
+      activePopover.classList.remove('visible');
+      activePopover = null;
+    }
+  }
+
+  function showDelPopover(label, anchorEl, e) {
+    e.stopPropagation();
+    // 关闭已有气泡
+    closePopover();
+
+    const tag = customTags.find(t => t.label === label);
+    const refCount = tag ? tag.refCount : 0;
+
+    const popover = document.createElement('div');
+    popover.className = 'del-popover';
+    popover.innerHTML = `
+      <div class="del-popover-text">已有 <b>${refCount}</b> 条政策引用该标签，确认删除？</div>
+      <div class="del-popover-actions">
+        <button class="del-popover-cancel">取消</button>
+        <button class="del-popover-confirm">确认</button>
+      </div>`;
+
+    popover.querySelector('.del-popover-cancel').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      closePopover();
+      anchorEl.classList.remove('long-pressed');
+    });
+    popover.querySelector('.del-popover-confirm').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      closePopover();
+      const idx = customTags.findIndex(t => t.label === label);
+      if (idx !== -1) customTags.splice(idx, 1);
+      const si = selectedCustomTags.indexOf(label);
+      if (si !== -1) selectedCustomTags.splice(si, 1);
+      renderCustomTags();
+    });
+
+    anchorEl.style.position = 'relative';
+    anchorEl.appendChild(popover);
+    activePopover = popover;
+    // 触发动画
+    requestAnimationFrame(() => popover.classList.add('visible'));
+  }
+
+  function removeCustomTag(label, e) {
+    e.stopPropagation();
+    const idx = customTags.findIndex(t => t.label === label);
+    if (idx !== -1) customTags.splice(idx, 1);
+    const si = selectedCustomTags.indexOf(label);
+    if (si !== -1) selectedCustomTags.splice(si, 1);
+    renderCustomTags();
+  }
+
+  function selectCustomTag(label) {
+    const si = selectedCustomTags.indexOf(label);
+    if (si !== -1) {
+      // 已选中 → 取消
+      selectedCustomTags.splice(si, 1);
+    } else {
+      if (selectedCustomTags.length >= 2) {
+        // 已满 → 移除最早选中的那个
+        selectedCustomTags.shift();
+      }
+      selectedCustomTags.push(label);
+    }
+    renderCustomTags();
+  }
+
+  function renderCustomTags() {
+    const list = document.getElementById('customTagList');
+    list.innerHTML = '';
+    customTags.forEach(t => {
+      const item = document.createElement('div');
+      item.className = 'custom-tag-item' + (selectedCustomTags.includes(t.label) ? ' selected' : '');
+
+      item.innerHTML = `<span>${t.label}</span>${t.preset ? '' : '<span class="del-btn" title="删除">×</span>'}`;
+
+      if (!t.preset) {
+        let pressTimer = null;
+        let didLongPress = false;
+
+        const startPress = () => {
+          didLongPress = false;
+          pressTimer = setTimeout(() => {
+            didLongPress = true;
+            item.classList.add('long-pressing');
+            setTimeout(() => item.classList.remove('long-pressing'), 300);
+            item.classList.toggle('long-pressed');
+          }, 500);
+        };
+
+        const cancelPress = () => clearTimeout(pressTimer);
+
+        item.addEventListener('mousedown', startPress);
+        item.addEventListener('touchstart', startPress, { passive: true });
+        item.addEventListener('mouseup', cancelPress);
+        item.addEventListener('mouseleave', cancelPress);
+        item.addEventListener('touchend', cancelPress);
+
+        // 短按 → 选中/取消；长按不触发选中
+        item.addEventListener('click', () => {
+          if (didLongPress) { didLongPress = false; return; }
+          selectCustomTag(t.label);
+        });
+
+        item.querySelector('.del-btn').addEventListener('click', (e) => {
+          showDelPopover(t.label, item, e);
+        });
+      } else {
+        // 预设标签只支持短按选中
+        item.addEventListener('click', () => selectCustomTag(t.label));
+      }
+
+      list.appendChild(item);
+    });
+
+    const customCount = customTags.filter(t => !t.preset).length;
+    const input = document.getElementById('customTagInput');
+    input.style.display = customCount >= 2 ? 'none' : '';
+  }
+
+  function handleFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const preview = document.getElementById('filePreview');
+    preview.style.display = 'block';
+    preview.textContent = '已选择：' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+  }
+
+  // Simple year picker
+  function toggleYearPicker() {
+    const dd = document.getElementById('yearDropdown');
+    if (dd.style.display === 'none' || !dd.style.display) {
+      buildYearPicker();
+      dd.style.display = 'block';
+    } else {
+      dd.style.display = 'none';
+    }
+  }
+
+  function buildYearPicker() {
+    const dd = document.getElementById('yearDropdown');
+    const inner = dd.querySelector('div');
+    inner.innerHTML = '';
+    const current = new Date().getFullYear();
+    for (let y = current + 2; y >= current - 8; y--) {
+      const btn = document.createElement('button');
+      btn.textContent = y;
+      btn.style.cssText = 'width:44px;height:28px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;';
+      btn.onmouseenter = () => btn.style.borderColor = '#4c5cff';
+      btn.onmouseleave = () => btn.style.borderColor = '#d9d9d9';
+      btn.onclick = () => {
+        document.getElementById('yearPicker').value = y;
+        document.getElementById('yearPicker').style.color = '#333';
+        dd.style.display = 'none';
+      };
+      inner.appendChild(btn);
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const dd = document.getElementById('yearDropdown');
+    const wrap = document.querySelector('.year-wrap');
+    if (wrap && !wrap.contains(e.target)) dd.style.display = 'none';
+  });
+
+  // mousedown 监听：点击标签外关闭长按删除态和气泡
+  document.addEventListener('mousedown', (e) => {
+    if (!e.target.closest('.custom-tag-item')) {
+      document.querySelectorAll('.custom-tag-item.long-pressed')
+        .forEach(el => el.classList.remove('long-pressed'));
+      closePopover();
+    }
+  });
+
+  function validate() {
+    const title = document.getElementById('policyTitle').value.trim();
+    const school = document.getElementById('schoolName').value.trim();
+    const region = document.getElementById('region').value;
+    const year = document.getElementById('yearPicker').value;
+    const tag = document.querySelector('#tagGroup input[type="radio"]:checked');
+    const msgs = [];
+    if (!title) msgs.push('政策标题');
+    if (!school) msgs.push('学校名称');
+    if (!region) msgs.push('选择地区');
+    if (!year) msgs.push('选择年份');
+    if (!tag) msgs.push('选择标签');
+    if (msgs.length) { alert('请填写：' + msgs.join('、')); return false; }
+    return true;
+  }
+
+  function handleCancel() {
+    if (confirm('确认取消？已填写内容将不被保存。')) {
+      location.href = 'policy-list.html';
+    }
+  }
+
+  function handleSave() {
+    if (!validate()) return;
+    alert('保存成功！');
+  }
+
+  function handleSaveAndNext() {
+    if (!validate()) return;
+    alert('保存成功！已为您创建下一个。');
+    handleCancel();
+  }
+
+  // Render initial tags on load
+  renderCustomTags();
+</script>
+</body>
+</html>
