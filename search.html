@@ -364,7 +364,7 @@
     }
     header.style.display = 'flex';
     tags.innerHTML = list.map(q =>
-      `<span class="history-tag" data-q="${encodeURIComponent(q)}">🕐 ${q}</span>`
+      `<span class="history-tag" data-q="${encodeURIComponent(q)}">${q}</span>`
     ).join('');
     tags.querySelectorAll('.history-tag').forEach(el => {
       el.addEventListener('click', () => {
