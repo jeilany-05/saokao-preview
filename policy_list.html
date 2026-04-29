@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>政策列表页</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #d0d8e8;
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 0 40px;
+  }
+
+  .phone-shell {
+    width: 375px;
+    height: 812px;
+    border-radius: 44px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 8px #c8d0e0, 0 0 0 10px #b8c2d6;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .phone-wrap {
+    width: 375px;
+    height: 812px;
+    background: #fff;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-anchor: none; /* 防止浏览器在内容高度变化时自动调整scrollTop */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    position: relative;
+  }
+  .phone-wrap::-webkit-scrollbar { display: none; }
+
+  /* ── 状态栏：始终吸顶 ── */
+  .status-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    height: 44px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  .status-time { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+  .status-icons { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #1a1a2e; }
+
+  /* ── Hero区：正常流，只做opacity淡出，高度从不改变 ── */
+  .hero-section {
+    position: relative;
+    will-change: opacity;
+    background: #fff;
+  }
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 6px;
+  }
+  .back-btn { font-size: 22px; color: #333; cursor: pointer; font-weight: 300; line-height: 1; }
+  .deco-wrap { position: relative; width: 80px; height: 72px; }
+  .deco-circle {
+    position: absolute; right: 0; top: 0;
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, #6eb3f7 0%, #4a8de8 60%, #a78bfa 100%);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .deco-circle::after {
+    content: ''; width: 28px; height: 28px;
+    background: rgba(255,255,255,0.35); border-radius: 6px; transform: rotate(12deg);
+  }
+  .deco-sticker {
+    position: absolute; left: 0; bottom: 0;
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; box-shadow: 0 2px 8px rgba(251,191,36,0.3);
+  }
+  .deco-pin {
+    position: absolute; right: 2px; bottom: 8px;
+    width: 26px; height: 26px;
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; box-shadow: 0 2px 6px rgba(239,68,68,0.3);
+  }
+  .title-section { padding: 4px 20px 16px; }
+  .page-title { font-size: 26px; font-weight: 800; color: #1a2a4a; letter-spacing: -0.5px; line-height: 1.2; }
+
+  /* ── 搜索+Tab 吸顶块：高度恒定，紧凑导航用transform滑入 ── */
+  .search-tab-block {
+    position: sticky;
+    top: 44px; /* 紧贴状态栏下方 */
+    z-index: 100;
+    background: #fff;
+    padding-top: 44px; /* 为紧凑导航留出空间（绝对定位，不撑高） */
+  }
+
+  /* 紧凑导航：绝对定位，transform动画，从不影响布局 */
+  .compact-nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    transform: translateY(-44px); /* 初始隐藏在状态栏背后 */
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .compact-title { font-size: 17px; font-weight: 700; color: #1a2a4a; }
+  .more-btn { font-size: 20px; color: #333; letter-spacing: 2px; cursor: pointer; }
+
+  /* 搜索框 */
+  .search-bar {
+    margin: 0 16px 14px;
+    background: #fff;
+    border-radius: 22px;
+    display: flex; align-items: center;
+    padding: 10px 16px; gap: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  }
+  .search-icon { color: #aab4c8; font-size: 16px; }
+  .search-placeholder { color: #bcc6d6; font-size: 15px; }
+
+  /* Tab栏 */
+  .tab-bar {
+    display: flex; align-items: center;
+    padding: 0 16px 12px; justify-content: space-between;
+  }
+  .tab-left { display: flex; gap: 4px; }
+  .tab-item {
+    padding: 6px 16px; font-size: 15px; font-weight: 500;
+    color: #8a9ab8; border-radius: 20px; cursor: pointer;
+  }
+  .tab-item.active {
+    color: #2563eb; font-weight: 700;
+    background: #fff; box-shadow: 0 1px 6px rgba(37,99,235,0.1);
+  }
+  .filter-btn {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: #6b7a99; background: #fff;
+    border: 1px solid transparent; border-radius: 14px; padding: 5px 12px;
+    cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .filter-btn.active {
+    color: #f59e0b;
+    background: #fff8ec;
+    border-color: #f59e0b;
+  }
+
+  /* 已选状态行 */
+  .selected-bar {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+  }
+  .selected-bar.visible { display: flex; }
+  .selected-label {
+    font-size: 13px;
+    color: #1a2a4a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+  .selected-label em {
+    font-style: normal;
+    color: #f59e0b;
+    font-weight: 600;
+  }
+  /* tab-left 隐藏时 */
+  .tab-left.hidden { display: none; }
+
+  /* 空状态 */
+  .empty-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0 40px;
+    gap: 16px;
+  }
+  .empty-state.visible { display: flex; }
+  .empty-text { font-size: 15px; color: #b0b8cc; }
+
+  /* ── 卡片列表 ── */
+  .list-area { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  .policy-card {
+    background: #fff; border-radius: 16px;
+    padding: 14px 12px 14px 14px;
+    display: flex; align-items: stretch; gap: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer;
+  }
+  .card-left { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .card-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8a9ab8; }
+  .card-title {
+    font-size: 15px; font-weight: 600; color: #1a2a4a; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-new-badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    color: #fff;
+    background: linear-gradient(90deg, #f87171, #f59e0b);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-right: 5px;
+    vertical-align: middle;
+    line-height: 1.6;
+    flex-shrink: 0;
+  }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag {
+    font-size: 11px; color: #6b7a99;
+    border: 1px solid #d4dae8; border-radius: 10px;
+    padding: 2px 8px; background: #f7f9fc;
+  }
+
+  .school-block {
+    width: 84px; min-height: 90px; border-radius: 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative; padding: 10px 6px;
+  }
+  .school-dots {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; align-items: center;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .school-name { color: #fff; font-size: 13px; font-weight: 700; text-align: center; line-height: 1.35; margin-top: 10px; }
+
+  .grad-blue    { background: linear-gradient(160deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%); }
+  .grad-indigo  { background: linear-gradient(160deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%); }
+  .grad-sky     { background: linear-gradient(160deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%); }
+  .grad-violet  { background: linear-gradient(160deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%); }
+  .grad-cyan    { background: linear-gradient(160deg, #67e8f9 0%, #22d3ee 50%, #06b6d4 100%); }
+  .grad-teal    { background: linear-gradient(160deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%); }
+  .grad-rose    { background: linear-gradient(160deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%); }
+
+  .bottom-pad { height: 500px; }
+
+  /* ── 筛选抽屉 ── */
+  .drawer-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+  .drawer-mask.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .drawer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 72%;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    z-index: 301;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  }
+  .drawer.open {
+    transform: translateY(0);
+  }
+
+  /* 抽屉内容区 */
+  .drawer-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* 左侧 tab */
+  .drawer-tabs {
+    width: 72px;
+    background: #f7f8fa;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .drawer-tab {
+    padding: 18px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    cursor: pointer;
+    position: relative;
+    font-weight: 500;
+  }
+  .drawer-tab.active {
+    color: #f59e0b;
+    background: #fff;
+    font-weight: 700;
+  }
+  .drawer-tab.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 20px;
+    background: #f59e0b;
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* 右侧内容 */
+  .drawer-content {
+    flex: 1;
+    padding: 20px 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .filter-group-title {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 10px;
+  }
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .filter-tag {
+    font-size: 13px;
+    color: #333;
+    background: #f2f3f5;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-tag.selected {
+    color: #f59e0b;
+    background: #fff8ec;
+    border-color: #f59e0b;
+  }
+  /* 地区面板选中为蓝色 */
+  .region-tag.selected {
+    color: #2563eb;
+    background: #eff6ff;
+    border-color: #2563eb;
+  }
+
+  /* tab 红点 */
+  .drawer-tab .tab-dot {
+    display: none;
+    width: 7px; height: 7px;
+    background: #ef4444;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px; right: 12px;
+  }
+  .drawer-tab.has-dot .tab-dot { display: block; }
+
+  /* 面板切换 */
+  .drawer-panel { display: none; flex: 1; overflow: hidden; }
+  .drawer-panel.active { display: flex; }
+
+  /* 地区面板布局 */
+  .region-scroll {
+    flex: 1;
+    padding: 12px 8px 12px 16px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .region-scroll::-webkit-scrollbar { display: none; }
+  .region-letter {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .region-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .region-tag {
+    font-size: 13px;
+    color: #333;
+    background: #f2f3f5;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  /* A-Z 右侧索引 */
+  .az-index {
+    width: 26px;
+    padding: 8px 4px 8px 0;
+    margin-right: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    flex-shrink: 0;
+  }
+  .az-item {
+    font-size: 10px;
+    color: #bbb;
+    line-height: 1.5;
+    cursor: pointer;
+    padding: 1px 4px;
+    border-radius: 3px;
+    transition: color 0.15s;
+  }
+  .az-item.active {
+    color: #2563eb;
+    font-weight: 700;
+    background: #eff6ff;
+    border-radius: 4px;
+  }
+
+  /* 分组字母高亮动效 */
+  .region-letter {
+    transition: color 0.2s, transform 0.2s;
+    display: inline-block;
+  }
+  .region-letter.flash {
+    color: #f59e0b;
+    transform: scale(1.3);
+  }
+
+  /* 分组区域背景高亮 */
+  .region-scroll > div {
+    border-radius: 10px;
+    padding: 6px 8px;
+    transition: background 0.3s;
+  }
+  .region-scroll > div.flash-section {
+    background: #fff8ec;
+  }
+
+  /* 底部按钮 */
+  .drawer-footer {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px 20px;
+    border-top: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .btn-clear {
+    flex: 1;
+    padding: 12px 0;
+    border-radius: 24px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-size: 15px;
+    color: #555;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-confirm {
+    flex: 2;
+    padding: 12px 0;
+    border-radius: 24px;
+    border: none;
+    background: #f59e0b;
+    font-size: 15px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="phone-shell">
+<div class="phone-wrap" id="phoneWrap">
+
+  <!-- 状态栏：始终吸顶 -->
+  <div class="status-sticky" id="statusSticky">
+    <span class="status-time">9:41</span>
+    <div class="status-icons"><span>▐▐▐</span><span>📶</span><span>🔋</span></div>
+  </div>
+
+  <!-- Hero区：正常滚动，opacity淡出，高度不变 -->
+  <div class="hero-section" id="heroSection">
+    <div class="nav-bar">
+      <span class="back-btn">＜</span>
+      <div class="deco-wrap">
+        <div class="deco-circle"></div>
+        <div class="deco-sticker">🏫</div>
+        <div class="deco-pin">📌</div>
+      </div>
+    </div>
+    <div class="title-section">
+      <div class="page-title">最新各地升学政策</div>
+    </div>
+  </div>
+
+  <!-- 搜索+Tab 吸顶块 -->
+  <div class="search-tab-block" id="searchTabBlock">
+
+    <!-- 紧凑导航：绝对定位，transform滑入，不影响任何布局 -->
+    <div class="compact-nav" id="compactNav">
+      <span class="back-btn">＜</span>
+      <span class="compact-title">编程政策</span>
+      <span class="more-btn">···</span>
+    </div>
+
+    <div class="search-bar" id="searchBarTrigger" style="cursor:pointer;">
+      <span class="search-icon">🔍</span>
+      <span class="search-placeholder">搜索</span>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-left" id="tabLeft">
+        <div class="tab-item active" id="tabLatest">最新</div>
+        <div class="tab-item" id="tabHot">最热</div>
+      </div>
+      <div class="selected-bar" id="selectedBar">
+        <span class="selected-label" id="selectedLabel"></span>
+      </div>
+      <button class="filter-btn" id="filterBtn">⊞ 筛选</button>
+    </div>
+
+  </div>
+
+  <!-- 政策列表（动态渲染） -->
+  <div class="list-area" id="listArea"></div>
+
+  <!-- 空状态 -->
+  <div class="empty-state" id="emptyState">
+    <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="80" cy="138" rx="46" ry="10" fill="#e8ecf5" opacity="0.7"/>
+      <rect x="55" y="88" width="50" height="46" rx="14" fill="url(#bodyGrad2)"/>
+      <text x="73" y="113" font-size="11" font-weight="800" font-family="Arial,sans-serif" fill="#f87171">Y</text>
+      <text x="80" y="113" font-size="11" font-weight="800" font-family="Arial,sans-serif" fill="#60a5fa">B</text>
+      <text x="87" y="113" font-size="11" font-weight="800" font-family="Arial,sans-serif" fill="#34d399">C</text>
+      <rect x="58" y="116" width="44" height="20" rx="8" fill="#fbbf24"/>
+      <rect x="60" y="130" width="14" height="14" rx="7" fill="#dbeafe"/>
+      <rect x="86" y="130" width="14" height="14" rx="7" fill="#dbeafe"/>
+      <rect x="72" y="80" width="16" height="14" rx="6" fill="#c9a87c"/>
+      <ellipse cx="80" cy="66" rx="26" ry="24" fill="#c9a87c"/>
+      <ellipse cx="80" cy="70" rx="20" ry="16" fill="#d4b08a"/>
+      <circle cx="72" cy="64" r="4.5" fill="#fff"/>
+      <circle cx="73" cy="64" r="2.5" fill="#3d2010"/>
+      <circle cx="74" cy="62.5" r="1" fill="#fff"/>
+      <path d="M84 64 Q86.5 61 89 64" stroke="#3d2010" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M76 72 Q80 76 84 72" stroke="#a0522d" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <ellipse cx="54" cy="66" rx="7" ry="8" fill="#c9a87c"/>
+      <ellipse cx="54" cy="66" rx="4" ry="5" fill="#e8b89a"/>
+      <ellipse cx="106" cy="66" rx="7" ry="8" fill="#c9a87c"/>
+      <ellipse cx="106" cy="66" rx="4" ry="5" fill="#e8b89a"/>
+      <rect x="58" y="44" width="44" height="8" rx="3" fill="#c5cbda"/>
+      <polygon points="80,10 110,52 50,52" fill="#d0d5e8"/>
+      <rect x="72" y="43" width="16" height="6" rx="2" fill="#b0b8cc"/>
+      <circle cx="80" cy="10" r="4" fill="#c5cbda"/>
+      <ellipse cx="46" cy="102" rx="9" ry="7" fill="#c9a87c" transform="rotate(-20 46 102)"/>
+      <ellipse cx="114" cy="102" rx="9" ry="7" fill="#c9a87c" transform="rotate(20 114 102)"/>
+      <circle cx="34" cy="80" r="12" fill="#e8ecf5" opacity="0.8"/>
+      <circle cx="27" cy="89" r="5" fill="#e8ecf5" opacity="0.6"/>
+      <circle cx="22" cy="96" r="3" fill="#e8ecf5" opacity="0.4"/>
+      <text x="34" y="84" text-anchor="middle" font-size="8" fill="#b0b8cc">···</text>
+      <defs>
+        <linearGradient id="bodyGrad2" x1="55" y1="88" x2="105" y2="134" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#fff"/>
+          <stop offset="100%" stop-color="#f0f4ff"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="empty-text">暂无相关内容</span>
+  </div>
+
+  <div class="bottom-pad"></div>
+
+</div><!-- /phone-wrap -->
+
+<!-- 抽屉放在 phone-shell 层，不随 phone-wrap 滚动 -->
+<div class="drawer-mask" id="drawerMask"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-body">
+
+      <!-- 左侧 tab -->
+      <div class="drawer-tabs">
+        <div class="drawer-tab active" data-panel="panel-general">
+          综合
+          <span class="tab-dot"></span>
+        </div>
+        <div class="drawer-tab" data-panel="panel-region">
+          地区
+          <span class="tab-dot"></span>
+        </div>
+      </div>
+
+      <!-- 综合面板 -->
+      <div class="drawer-panel active" id="panel-general">
+        <div class="drawer-content">
+          <div>
+            <div class="filter-group-title">年份</div>
+            <div class="filter-tags">
+              <span class="filter-tag" data-panel="panel-general" data-type="year">2016</span>
+              <span class="filter-tag" data-panel="panel-general" data-type="year">2017</span>
+              <span class="filter-tag" data-panel="panel-general" data-type="year">2018</span>
+              <span class="filter-tag" data-panel="panel-general" data-type="year">2025</span>
+            </div>
+          </div>
+          <div>
+            <div class="filter-group-title">学段</div>
+            <div class="filter-tags">
+              <span class="filter-tag" data-panel="panel-general" data-type="level">小学</span>
+              <span class="filter-tag" data-panel="panel-general" data-type="level">初中</span>
+              <span class="filter-tag" data-panel="panel-general" data-type="level">高中</span>
+            </div>
+          </div>
+          <div>
+            <div class="filter-group-title">分类</div>
+            <div class="filter-tags">
+              <span class="filter-tag" data-panel="panel-general" data-type="category">科技特长生</span>
+              <span class="filter-tag" data-panel="panel-general" data-type="category">强基计划</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 地区面板 -->
+      <div class="drawer-panel" id="panel-region" style="display:none;flex:1;overflow:hidden;">
+        <div class="region-scroll" id="regionScroll">
+          <div id="section-A">
+            <div class="region-letter">A</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">安徽</span>
+            </div>
+          </div>
+          <div id="section-B">
+            <div class="region-letter">B</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">北京</span>
+            </div>
+          </div>
+          <div id="section-F">
+            <div class="region-letter">F</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">福建</span>
+            </div>
+          </div>
+          <div id="section-G">
+            <div class="region-letter">G</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">广东</span>
+              <span class="region-tag" data-panel="panel-region">广西</span>
+            </div>
+          </div>
+          <div id="section-H">
+            <div class="region-letter">H</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">湖北</span>
+              <span class="region-tag" data-panel="panel-region">湖南</span>
+              <span class="region-tag" data-panel="panel-region">河北</span>
+              <span class="region-tag" data-panel="panel-region">河南</span>
+              <span class="region-tag" data-panel="panel-region">海南</span>
+            </div>
+          </div>
+          <div id="section-J">
+            <div class="region-letter">J</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">江苏</span>
+              <span class="region-tag" data-panel="panel-region">江西</span>
+              <span class="region-tag" data-panel="panel-region">吉林</span>
+            </div>
+          </div>
+          <div id="section-L">
+            <div class="region-letter">L</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">辽宁</span>
+            </div>
+          </div>
+          <div id="section-N">
+            <div class="region-letter">N</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">内蒙古</span>
+              <span class="region-tag" data-panel="panel-region">宁夏</span>
+            </div>
+          </div>
+          <div id="section-Q">
+            <div class="region-letter">Q</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">青海</span>
+            </div>
+          </div>
+          <div id="section-S">
+            <div class="region-letter">S</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">上海</span>
+              <span class="region-tag" data-panel="panel-region">山东</span>
+              <span class="region-tag" data-panel="panel-region">山西</span>
+              <span class="region-tag" data-panel="panel-region">四川</span>
+              <span class="region-tag" data-panel="panel-region">陕西</span>
+            </div>
+          </div>
+          <div id="section-T">
+            <div class="region-letter">T</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">天津</span>
+            </div>
+          </div>
+          <div id="section-X">
+            <div class="region-letter">X</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">新疆</span>
+              <span class="region-tag" data-panel="panel-region">西藏</span>
+            </div>
+          </div>
+          <div id="section-Y">
+            <div class="region-letter">Y</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">云南</span>
+            </div>
+          </div>
+          <div id="section-Z">
+            <div class="region-letter">Z</div>
+            <div class="region-tags">
+              <span class="region-tag" data-panel="panel-region">浙江</span>
+              <span class="region-tag" data-panel="panel-region">重庆</span>
+            </div>
+          </div>
+        </div>
+        <!-- A-Z 索引 -->
+        <div class="az-index" id="azIndex">
+          <span class="az-item" data-sec="A">A</span>
+          <span class="az-item" data-sec="B">B</span>
+          <span class="az-item" data-sec="F">F</span>
+          <span class="az-item" data-sec="G">G</span>
+          <span class="az-item" data-sec="H">H</span>
+          <span class="az-item" data-sec="J">J</span>
+          <span class="az-item" data-sec="L">L</span>
+          <span class="az-item" data-sec="N">N</span>
+          <span class="az-item" data-sec="Q">Q</span>
+          <span class="az-item" data-sec="S">S</span>
+          <span class="az-item" data-sec="T">T</span>
+          <span class="az-item" data-sec="X">X</span>
+          <span class="az-item" data-sec="Y">Y</span>
+          <span class="az-item" data-sec="Z">Z</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- 底部按钮 -->
+    <div class="drawer-footer">
+      <button class="btn-clear" id="btnClear">清空选项</button>
+      <button class="btn-confirm" id="btnConfirm">确认</button>
+    </div>
+  </div>
+
+</div><!-- /phone-shell -->
+
+<script>
+  const phoneWrap     = document.getElementById('phoneWrap');
+  const statusSticky  = document.getElementById('statusSticky');
+  const heroSection   = document.getElementById('heroSection');
+  const searchTabBlock= document.getElementById('searchTabBlock');
+  const compactNav    = document.getElementById('compactNav');
+
+  phoneWrap.scrollTop = 0;
+
+  // 记录 hero 真实高度（只读一次，之后绝不再读）
+  const heroH = heroSection.offsetHeight;
+
+  function blendBg(t) {
+    const r = 255;
+    const g = 255;
+    const b = 255;
+    return `rgb(${r},${g},${b})`;
+  }
+
+  phoneWrap.addEventListener('scroll', () => {
+    const s = phoneWrap.scrollTop;
+    // t: 0=初始 → 1=hero完全滚过
+    const t = Math.min(s / heroH, 1);
+
+    // 1. Hero 淡出：只改opacity，绝不改高度/位置 → 零重排
+    heroSection.style.opacity = Math.max(0, 1 - t * 1.8).toFixed(3);
+
+    // 2. 紧凑导航滑入：只用transform+opacity → 零重排
+    const tC = Math.max(0, (t - 0.4) / 0.6);
+    compactNav.style.transform = `translateY(${(-44 * (1 - tC)).toFixed(2)}px)`;
+    compactNav.style.opacity   = tC.toFixed(3);
+
+    // 3. 背景渐白
+    const bg = blendBg(t);
+    statusSticky.style.background   = bg;
+    searchTabBlock.style.background = bg;
+    // hero背景跟随，防止透明后露出下层颜色差异
+    heroSection.style.background    = bg;
+
+    // 4. 完全折叠后加阴影
+    searchTabBlock.style.boxShadow = t >= 1
+      ? '0 2px 12px rgba(0,0,0,0.08)'
+      : 'none';
+
+  }, { passive: true });
+
+  // ── Mock 数据（views 为数字，用于最热排序） ──
+  const mockData = [
+    { title: '2026年北京市第十九中学科技特长生政策',     views: 3545, school: '四川外大重科中学', grad: 'grad-blue',   year: '2026', level: '高中', category: '科技特长生', region: '北京' },
+    { title: '2026年北京市第一中学强基计划招生简章',     views: 3120, school: '北京一七一中学',   grad: 'grad-indigo', year: '2026', level: '高中', category: '强基计划',   region: '北京' },
+    { title: '2024年北京市第十九中学自主招生政策',       views: 2980, school: '北京一七一中学',   grad: 'grad-sky',    year: '2024', level: '高中', category: '强基计划',   region: '北京' },
+    { title: '2024年上海市初中科技特长生政策汇总',       views: 2750, school: '东直门中学',       grad: 'grad-violet', year: '2024', level: '初中', category: '科技特长生', region: '上海' },
+    { title: '2024年北京市第十九中学科技特长生政策',     views: 2310, school: '北京五十五中学',   grad: 'grad-cyan',   year: '2024', level: '高中', category: '科技特长生', region: '北京' },
+    { title: '2024年广州市执信中学特长生招生政策',       views: 2198, school: '执信中学',         grad: 'grad-teal',   year: '2024', level: '高中', category: '科技特长生', region: '广东' },
+    { title: '2025年上海市七宝中学信息学特长生招生简章', views: 1876, school: '七宝中学',         grad: 'grad-rose',   year: '2025', level: '高中', category: '科技特长生', region: '上海' },
+    { title: '2025年北京市第十九中学科技特长生招生公告', views: 1542, school: '北京一七一中学',   grad: 'grad-blue',   year: '2025', level: '高中', category: '强基计划',   region: '北京' },
+    { title: '2018年四川省初中科技特长生政策',           views:  980, school: '成都七中',         grad: 'grad-indigo', year: '2018', level: '初中', category: '科技特长生', region: '四川' },
+    { title: '2016年广东省小学特长生招生政策',           views:  765, school: '执信中学',         grad: 'grad-teal',   year: '2016', level: '小学', category: '科技特长生', region: '广东' },
+    { title: '2017年上海市强基计划高中招生公告',         views:  654, school: '复旦附中',         grad: 'grad-violet', year: '2017', level: '高中', category: '强基计划',   region: '上海' },
+  ];
+
+  let currentTab = 'latest'; // 'latest' | 'hot'
+
+  const listArea   = document.getElementById('listArea');
+  const emptyState = document.getElementById('emptyState');
+
+  function getActiveFilters() {
+    const years      = [...document.querySelectorAll('.filter-tag[data-type="year"].selected')].map(t => t.textContent.trim());
+    const levels     = [...document.querySelectorAll('.filter-tag[data-type="level"].selected')].map(t => t.textContent.trim());
+    const categories = [...document.querySelectorAll('.filter-tag[data-type="category"].selected')].map(t => t.textContent.trim());
+    const regions    = [...document.querySelectorAll('.region-tag.selected')].map(t => t.textContent.trim());
+    return { years, levels, categories, regions };
+  }
+
+  function renderList() {
+    const { years, levels, categories, regions } = getActiveFilters();
+    let filtered = mockData.filter(item => {
+      if (years.length      && !years.includes(item.year))           return false;
+      if (levels.length     && !levels.includes(item.level))         return false;
+      if (categories.length && !categories.includes(item.category))  return false;
+      if (regions.length    && !regions.includes(item.region))       return false;
+      return true;
+    });
+
+    // 最热：按浏览数由高到低排序
+    if (currentTab === 'hot') {
+      filtered = [...filtered].sort((a, b) => b.views - a.views);
+    }
+
+    listArea.innerHTML = '';
+    if (filtered.length === 0) {
+      emptyState.classList.add('visible');
+      return;
+    }
+    emptyState.classList.remove('visible');
+    filtered.forEach(item => {
+      const allTags = [item.level, item.category, item.region];
+      const tags = allTags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
+      const badge = currentTab === 'latest' ? `<span class="card-new-badge">New</span>` : '';
+      const meta  = currentTab === 'hot'    ? `<div class="card-meta"><span>👁 ${item.views.toLocaleString()} 人看过</span></div>` : '';
+      listArea.innerHTML += `
+        <div class="policy-card">
+          <div class="card-left">
+            <div class="card-title">${badge}${item.title}</div>
+            ${meta}
+            <div class="card-tags">${tags}</div>
+          </div>
+          <div class="school-block ${item.grad}">
+            <div class="school-dots">
+              <div class="dot" style="background:#fbbf24"></div>
+              <div class="dot" style="background:#f87171"></div>
+              <div class="dot" style="background:#34d399"></div>
+            </div>
+            <div class="school-name">${item.school}</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  // 初始渲染
+  renderList();
+
+  // ── 最新 / 最热 tab ──
+  document.getElementById('tabLatest').addEventListener('click', () => {
+    currentTab = 'latest';
+    document.getElementById('tabLatest').classList.add('active');
+    document.getElementById('tabHot').classList.remove('active');
+    renderList();
+  });
+  document.getElementById('tabHot').addEventListener('click', () => {
+    currentTab = 'hot';
+    document.getElementById('tabHot').classList.add('active');
+    document.getElementById('tabLatest').classList.remove('active');
+    renderList();
+  });
+
+  // ── 筛选抽屉 ──
+  const filterBtn  = document.getElementById('filterBtn');
+  const drawer     = document.getElementById('drawer');
+  const drawerMask = document.getElementById('drawerMask');
+  const btnClear   = document.getElementById('btnClear');
+  const btnConfirm = document.getElementById('btnConfirm');
+
+  function openDrawer() {
+    drawer.classList.add('open');
+    drawerMask.classList.add('open');
+    phoneWrap.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    drawerMask.classList.remove('open');
+    phoneWrap.style.overflow = 'scroll';
+  }
+
+  // 搜索框点击跳转
+  document.getElementById('searchBarTrigger').addEventListener('click', () => {
+    window.location.href = 'search.html';
+  });
+
+  filterBtn.addEventListener('click', openDrawer);
+  drawerMask.addEventListener('click', closeDrawer);
+  btnConfirm.addEventListener('click', () => {
+    closeDrawer();
+    updateDots();
+    renderList();
+  });
+
+  btnClear.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tag.selected, .region-tag.selected')
+      .forEach(t => t.classList.remove('selected'));
+    updateDots();
+    renderList();
+  });
+
+  // 标签选中切换
+  document.querySelectorAll('.filter-tag').forEach(tag => {
+    tag.addEventListener('click', () => { tag.classList.toggle('selected'); updateDots(); });
+  });
+  document.querySelectorAll('.region-tag').forEach(tag => {
+    tag.addEventListener('click', () => { tag.classList.toggle('selected'); updateDots(); });
+  });
+
+  const tabLeft      = document.getElementById('tabLeft');
+  const selectedBar  = document.getElementById('selectedBar');
+  const selectedLabel= document.getElementById('selectedLabel');
+
+  // 更新 tab 红点 + 筛选按钮高亮 + 已选栏切换
+  function updateDots() {
+    document.querySelectorAll('.drawer-tab').forEach(tab => {
+      const panelId = tab.dataset.panel;
+      const hasSelected = document.querySelector(`#${panelId} .filter-tag.selected, #${panelId} .region-tag.selected`);
+      tab.classList.toggle('has-dot', !!hasSelected);
+    });
+
+    const selectedItems = [...document.querySelectorAll('.filter-tag.selected, .region-tag.selected')]
+      .map(t => t.textContent.trim());
+
+    const hasAny = selectedItems.length > 0;
+    filterBtn.classList.toggle('active', hasAny);
+
+    if (hasAny) {
+      tabLeft.classList.add('hidden');
+      selectedBar.classList.add('visible');
+      selectedLabel.innerHTML = `<em>已选:</em> ${selectedItems.join('，')}`;
+    } else {
+      tabLeft.classList.remove('hidden');
+      selectedBar.classList.remove('visible');
+    }
+  }
+
+  // 左侧 tab 切换面板
+  document.querySelectorAll('.drawer-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const panelId = tab.dataset.panel;
+      document.querySelectorAll('.drawer-panel').forEach(p => {
+        p.style.display = 'none';
+        p.classList.remove('active');
+      });
+      const panel = document.getElementById(panelId);
+      panel.style.display = 'flex';
+      panel.classList.add('active');
+    });
+  });
+
+  // A-Z 索引跳转 + 分组字母高亮动效
+  document.querySelectorAll('.az-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const sec = document.getElementById('section-' + item.dataset.sec);
+      if (!sec) return;
+
+      // 滚动到目标分组
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // 索引字母高亮
+      document.querySelectorAll('.az-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+
+      // 分组字母 + 区域背景 flash 动效
+      const letter = sec.querySelector('.region-letter');
+      if (letter) {
+        letter.classList.remove('flash');
+        void letter.offsetWidth;
+        letter.classList.add('flash');
+        setTimeout(() => letter.classList.remove('flash'), 600);
+      }
+      // 区域背景高亮
+      document.querySelectorAll('.region-scroll > div.flash-section')
+        .forEach(el => el.classList.remove('flash-section'));
+      void sec.offsetWidth;
+      sec.classList.add('flash-section');
+      setTimeout(() => sec.classList.remove('flash-section'), 800);
+    });
+  });
+</script>
+</body>
+</html>
