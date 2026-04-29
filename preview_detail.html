@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390px, initial-scale=1.0">
+<title>政策详情</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  display:flex; justify-content:center; align-items:flex-start;
+  min-height:100vh; background:#C8D0E0; padding:24px;
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+}
+
+.phone {
+  width:390px; height:844px; background:#fff;
+  border-radius:48px; overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.35), 0 0 0 8px #111;
+  display:flex; flex-direction:column;
+}
+
+/* 状态栏 */
+.status-bar {
+  height:44px; display:flex; align-items:center;
+  justify-content:space-between; padding:0 24px;
+  flex-shrink:0;
+}
+.status-time { font-size:15px; font-weight:700; color:#1A2C5B; }
+.status-icons { display:flex; gap:6px; color:#1A2C5B; font-size:13px; }
+
+/* 导航栏 */
+.nav-bar {
+  height:44px; display:flex; align-items:center;
+  justify-content:space-between; padding:0 20px;
+  flex-shrink:0;
+}
+.nav-back {
+  width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:#1A2C5B; cursor:pointer;
+}
+.nav-right { display:flex; align-items:center; gap:12px; }
+.nav-dots { font-size:18px; color:#1A2C5B; letter-spacing:2px; cursor:pointer; }
+.nav-circle {
+  width:32px; height:32px; border-radius:50%;
+  border:1.5px solid #1A2C5B;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.nav-circle-inner { width:10px; height:10px; border-radius:50%; border:1.5px solid #1A2C5B; }
+
+/* 可滚动内容区 */
+.phone-content {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.phone-content::-webkit-scrollbar { display:none; }
+
+/* 标题 */
+.article-title {
+  font-size:20px; font-weight:900; color:#1A2C5B;
+  line-height:1.45; padding:16px 16px 8px;
+}
+
+/* 标题下方信息行 */
+.article-meta-row {
+  display:flex; align-items:center; gap:6px;
+  padding:0 16px 14px;
+  border-bottom:1px solid #F2F4F8;
+  flex-wrap:wrap;
+}
+.source-avatar {
+  width:20px; height:20px; border-radius:50%;
+  background:linear-gradient(135deg,#2B7FFF,#66AAFF);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; color:#fff; font-weight:700; flex-shrink:0;
+}
+.source-name { font-size:12px; color:#4A5A70; font-weight:500; }
+.article-meta-dot { width:3px; height:3px; border-radius:50%; background:#CCDDEE; flex-shrink:0; }
+#articleDate, #articleRegion { font-size:12px; color:#AABBCC; }
+
+/* 顶部广告横幅 */
+.ad-banner-top {
+  margin:14px 16px;
+  background:linear-gradient(135deg,#5BA8FF,#3380EE);
+  border-radius:12px;
+  padding:12px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+  position:relative; overflow:hidden;
+}
+.ad-banner-top::before {
+  content:'';
+  position:absolute; top:-20px; right:-20px;
+  width:100px; height:100px; border-radius:50%;
+  background:rgba(255,255,255,0.08);
+}
+.ad-banner-top::after {
+  content:'';
+  position:absolute; bottom:-30px; right:60px;
+  width:80px; height:80px; border-radius:50%;
+  background:rgba(255,255,255,0.06);
+}
+.ad-banner-left { flex:1; position:relative; z-index:1; }
+.ad-banner-title {
+  font-size:13px; font-weight:800; color:#fff;
+  line-height:1.4; margin-bottom:4px;
+}
+.ad-banner-sub { font-size:11px; color:rgba(255,255,255,0.85); }
+.ad-banner-btn {
+  background:#fff; color:#2B7FFF;
+  font-size:12px; font-weight:700;
+  padding:6px 14px; border-radius:20px;
+  white-space:nowrap; flex-shrink:0; cursor:pointer;
+  position:relative; z-index:1;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+
+/* 正文区 */
+.article-body {
+  padding:0 16px;
+}
+
+/* 章节标题 */
+.section-title {
+  display:flex; align-items:center; gap:10px;
+  margin:20px 0 10px;
+}
+.section-num {
+  width:32px; height:32px; border-radius:8px;
+  background:linear-gradient(135deg,#EEF4FF,#D8E8FF);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:900; color:#2B7FFF;
+  flex-shrink:0;
+}
+.section-name {
+  font-size:17px; font-weight:800; color:#1A2C5B;
+  flex:1;
+}
+.section-icon { font-size:16px; }
+
+/* 正文段落 */
+.para {
+  font-size:14px; color:#4A5A70; line-height:1.8;
+  margin-bottom:10px;
+}
+.para.red { color:#E82020; }
+
+/* 内嵌图片 */
+.inline-img {
+  width:100%; border-radius:10px;
+  margin:8px 0 14px; display:block;
+  background:#F2F4F8; overflow:hidden;
+}
+.inline-img-placeholder {
+  width:100%; height:140px;
+  background:linear-gradient(135deg,#D8E8FF,#C0D4F8);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:#90A8C8; border-radius:10px;
+}
+
+/* 联系方式 */
+.contact-row {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:6px;
+}
+.contact-label { font-size:13px; color:#AABBCC; width:56px; flex-shrink:0; }
+.contact-val { font-size:14px; color:#1A2C5B; font-weight:500; }
+
+/* 二维码区 */
+.qrcode-wrap {
+  margin:14px 0 6px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.qrcode-box {
+  width:96px; height:96px; border-radius:10px;
+  background:#F2F4F8; border:1px solid #E8EDF4;
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px;
+}
+.qrcode-hint { font-size:11px; color:#AABBCC; }
+
+/* 底部广告横幅（固定） */
+.ad-banner-bottom {
+  flex-shrink:0;
+  background:linear-gradient(135deg,#5BA8FF,#3380EE);
+  padding:10px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+  position:relative; overflow:hidden;
+}
+.ad-banner-bottom::before {
+  content:'';
+  position:absolute; top:-16px; right:80px;
+  width:60px; height:60px; border-radius:50%;
+  background:rgba(255,255,255,0.08);
+}
+.ad-bottom-left { flex:1; position:relative; z-index:1; }
+.ad-bottom-title { font-size:12px; font-weight:800; color:#fff; line-height:1.4; }
+.ad-bottom-sub { font-size:10px; color:rgba(255,255,255,0.85); margin-top:2px; }
+.ad-bottom-btn {
+  background:#fff; color:#2B7FFF;
+  font-size:12px; font-weight:700;
+  padding:6px 14px; border-radius:20px;
+  white-space:nowrap; flex-shrink:0; cursor:pointer;
+  position:relative; z-index:1;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+
+/* page foot */
+.page-foot { height:20px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons"><span>▐▐▐</span><span>●</span><span>🔋</span></div>
+  </div>
+
+  <!-- 导航栏 -->
+  <div class="nav-bar">
+    <div class="nav-back" onclick="history.back()">＜</div>
+    <div class="nav-right">
+      <span class="nav-dots">•••</span>
+      <div class="nav-circle"><div class="nav-circle-inner"></div></div>
+    </div>
+  </div>
+
+  <!-- 可滚动正文 -->
+  <div class="phone-content">
+
+    <!-- 标题 -->
+    <h1 class="article-title" id="articleTitle">2024年北京市第十九中学科技特长生政策</h1>
+
+    <!-- 日期 + 地区 -->
+    <div class="article-meta-row">
+      <span class="source-avatar">猿</span>
+      <span class="source-name">猿编程赛考</span>
+      <span class="article-meta-dot"></span>
+      <span id="articleDate">2024年03月22日 21:14</span>
+      <span class="article-meta-dot"></span>
+      <span id="articleRegion">北京</span>
+    </div>
+
+    <!-- 顶部广告 -->
+    <div class="ad-banner-top">
+      <div class="ad-banner-left">
+        <div class="ad-banner-title">超全面、超专业的赛事资讯</div>
+        <div class="ad-banner-sub">立即订阅，不错过任何赛事动态</div>
+      </div>
+      <div class="ad-banner-btn">分享给朋友 ▶</div>
+    </div>
+
+    <!-- 正文 -->
+    <div class="article-body">
+
+      <div class="section-title">
+        <div class="section-num">01</div>
+        <span class="section-name">招生计划及范围</span>
+        <span class="section-icon">📋</span>
+      </div>
+      <p class="para">本区科技人，包含无线电测向、电子技术(含Arduino编程)、无线电通讯业余电台)、天文、生物信息、彩绘素描、建筑模型。</p>
+      <p class="para">面向海淀区招生</p>
+
+      <div class="section-title">
+        <div class="section-num">02</div>
+        <span class="section-name">报考条件</span>
+        <span class="section-icon">📋</span>
+      </div>
+      <p class="para">申报特长生的初中毕业生应在德、智、体、美、劳全面发展，具备良好的综合素质，并且符合以下条件：</p>
+      <p class="para">1.是满足我区普通高中招生条件参加2024年初中学业水平考试（含海淀区参加初中学业水平考试的学生）</p>
+      <p class="para">2.长期积极参与特长项目的相关活动。</p>
+      <p class="para">3.参与特长项目连续的时候需要，专业功底扎实。</p>
+      <p class="para">4.报名学生学习建设艺术、科技其中一类特长，并连续相关特长项目连接符合各生涯需求各级各项级别的活动并取得特长项目证书。建议类文化课成绩的各类相应科目以及校综合素质评价中不同领域在以下方式进行录取。</p>
+
+      <div class="inline-img">
+        <div class="inline-img-placeholder">📸 现场活动图片</div>
+      </div>
+
+      <div class="section-title">
+        <div class="section-num">03</div>
+        <span class="section-name">测试形式及内容</span>
+        <span class="section-icon">📋</span>
+      </div>
+      <p class="para" style="font-weight:700;color:#1A2C5B;">科技类</p>
+      <p class="para">1.无线电测向：无线电测向的知识与技能/无线电台号码/测向机硬件原理和调试，均方法为(1)笔试项目(2)实操项目</p>
+      <p class="para">2.电子技术(含Arduino编程)：在此测中对应电子元器件及功件用处，无线电路的处理和处理</p>
+      <p class="para">3.建筑模型：积塑/积塑创想创意力和积分(才能力)</p>
+      <p class="para">4.生物信息：生物实验设计、生物模型制作、解读(考查生物学科的生命观、科学探究和科学思维)</p>
+      <p class="para">5.彩绘素描：电脑画面专绘图能力规范测评，也涵盖绘图相关学科基础内容</p>
+
+      <div class="section-title">
+        <div class="section-num">04</div>
+        <span class="section-name">录取标准</span>
+        <span class="section-icon">📋</span>
+      </div>
+      <p class="para" style="font-weight:700;color:#1A2C5B;">1.基本条件</p>
+      <p class="para">1)学业透明专业测测试完成一等奖合格、并由区签分公示名义，方可按照特长生参加一般合格第一名学生，方可满足认证考生特长身份被录取学校的条件</p>
+      <p class="para">学校特长生达到须预小班组满足作为作为学校录取特别方式满足条件"(也被成绩满足我们参加评分"录取多个申报填报考录可以以如录取考高中不同专业接受按照以下方式进行录取)</p>
+      <p class="para" style="font-weight:700;color:#1A2C5B;">3.特长生：须遵循绩分成绩结果的原则</p>
+      <p class="para">数字于符合特长生计划人数的，依据特长生评分测试，根据综合考虑每所学校安排由该校录取一般合并进行统一第一志愿录取，方可满足认证考生特长身份被录取学校的条件</p>
+      <p class="para red">如中考成绩不高于特长生招录名额限制的学生少于等级考生特长生计划招录人数时，按达标录取</p>
+
+      <div class="section-title">
+        <div class="section-num">05</div>
+        <span class="section-name">联系方式</span>
+        <span class="section-icon">📋</span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">联系电话</span>
+        <span class="contact-val">82515681</span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">联系电话</span>
+        <span class="contact-val">82515095</span>
+      </div>
+
+      <div class="qrcode-wrap">
+        <div class="qrcode-box">📷</div>
+        <span class="qrcode-hint">扫码了解更多政策详情</span>
+      </div>
+
+      <p class="para" style="margin-top:10px;font-size:13px;color:#AABBCC;">
+        如您对此政策和特长生的相关专题有影响建议，请精细用该考虑用该考核类用该类用该类相适参照此项按照上就普通方式高考录取。
+      </p>
+
+      <div class="page-foot"></div>
+    </div>
+  </div><!-- /phone-content -->
+
+  <!-- 底部固定广告 -->
+  <div class="ad-banner-bottom">
+    <div class="ad-bottom-left">
+      <div class="ad-bottom-title">超全面、超专业的赛事资讯</div>
+      <div class="ad-bottom-sub">立即订阅，不错过任何赛事动态</div>
+    </div>
+    <div class="ad-bottom-btn">分享给朋友 ▶</div>
+  </div>
+</div>
+
+<script>
+// 从 URL 参数读取标题，并回填到页面
+const params = new URLSearchParams(location.search);
+const title = params.get('title');
+if (title) {
+  document.getElementById('articleTitle').textContent = title;
+  document.title = title;
+}
+const region = params.get('region');
+if (region) {
+  document.getElementById('articleRegion').textContent = region;
+}
+</script>
+</body>
+</html>
