@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390px, initial-scale=1.0">
+<title>政策列表页</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  display:flex; justify-content:center; align-items:flex-start;
+  min-height:100vh; background:#C8D0E0; padding:24px;
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+}
+
+.phone {
+  width:390px; height:844px; background:#fff;
+  border-radius:48px; overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.35), 0 0 0 8px #111;
+  display:flex; flex-direction:column;
+}
+
+.phone-content {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.phone-content::-webkit-scrollbar { display:none; }
+
+/* 状态栏 */
+.status-bar {
+  height:44px; display:flex; align-items:center;
+  justify-content:space-between; padding:0 24px;
+  background:transparent; position:relative; z-index:5;
+}
+.status-time { font-size:15px; font-weight:700; color:#1A2C5B; }
+.status-icons { display:flex; gap:6px; color:#1A2C5B; font-size:13px; }
+
+/* 顶部 hero 区域 */
+.hero {
+  background: linear-gradient(160deg, #D8EAFF 0%, #EEF4FF 60%, #F5F8FF 100%);
+  padding: 0 20px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 装饰图标 */
+.hero-deco {
+  position: absolute;
+  right: -10px;
+  top: 10px;
+  width: 140px;
+  height: 120px;
+  pointer-events: none;
+}
+
+.deco-card {
+  position: absolute;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 16px rgba(100,140,255,0.2);
+}
+.deco-card-1 { width:64px; height:64px; background:linear-gradient(135deg,#B8D8FF,#90C0FF); top:10px; right:50px; transform:rotate(-8deg); }
+.deco-card-2 { width:52px; height:52px; background:linear-gradient(135deg,#E0B8FF,#C890FF); top:5px; right:10px; transform:rotate(6deg); }
+.deco-card-3 { width:48px; height:48px; background:linear-gradient(135deg,#90E8C8,#60D0A8); top:60px; right:30px; transform:rotate(-4deg); }
+
+/* 顶部导航 */
+.nav-bar {
+  height:44px; display:flex; align-items:center;
+  justify-content:space-between; position:relative; z-index:5;
+}
+.nav-back {
+  width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:20px; color:#1A2C5B; font-weight:300;
+}
+.nav-right { display:flex; align-items:center; gap:12px; }
+.nav-dots { font-size:18px; color:#1A2C5B; letter-spacing:2px; cursor:pointer; }
+.nav-circle {
+  width:32px; height:32px; border-radius:50%;
+  border:1.5px solid #1A2C5B;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.nav-circle-inner { width:10px; height:10px; border-radius:50%; border:1.5px solid #1A2C5B; }
+
+/* 大标题 */
+.hero-title {
+  font-size:32px; font-weight:900; color:#1A2C5B;
+  line-height:1.3; margin-top:8px; position:relative; z-index:5;
+}
+
+/* 搜索栏 */
+.search-bar {
+  margin-top: 14px;
+  background:#fff; border-radius:24px; height:44px;
+  display:flex; align-items:center; padding:0 16px; gap:8px;
+  box-shadow:0 2px 12px rgba(43,127,255,0.1);
+  cursor:pointer; position:relative; z-index:10;
+}
+.search-icon { color:#2B7FFF; font-size:17px; flex-shrink:0; }
+.search-placeholder { font-size:15px; color:#AABBCC; }
+
+/* ===== 切换 Tab ===== */
+.tab-switch {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #F2F4F8;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.tab-item {
+  position: relative;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #AABBCC;
+  cursor: pointer;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.tab-item.active {
+  color: #1A2C5B;
+  font-weight: 700;
+}
+
+/* 下划线 */
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: #2B7FFF;
+  border-radius: 2px;
+}
+
+/* 最热 tab 的火焰图标 */
+.tab-hot-icon {
+  font-size: 13px;
+  margin-right: 4px;
+}
+
+/* 分隔线（tab之间） */
+.tab-sep {
+  width: 1px;
+  height: 14px;
+  background: #E8EDF4;
+  margin: 0 4px;
+}
+
+/* 列表区域 */
+.policy-list {
+  background: #fff;
+}
+
+/* 政策条目 */
+.policy-item {
+  display: flex;
+  align-items: stretch;
+  padding: 16px 20px;
+  border-bottom: 1px solid #F2F4F8;
+  cursor: pointer;
+  gap: 14px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.policy-item:last-child { border-bottom: none; }
+
+.policy-left {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: space-between; gap: 10px;
+}
+
+/* 最热模式：排名序号 */
+.policy-rank {
+  font-size: 18px;
+  font-weight: 900;
+  min-width: 24px;
+  flex-shrink: 0;
+  align-self: center;
+  text-align: center;
+}
+.rank-1 { color: #FF3B30; }
+.rank-2 { color: #FF9500; }
+.rank-3 { color: #FFCC00; }
+.rank-n { color: #C8D0DC; font-size: 15px; }
+
+.policy-title {
+  font-size: 16px; font-weight: 600; color: #1A2C5B; line-height: 1.5;
+}
+
+.policy-meta {
+  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;
+}
+
+.policy-tag {
+  background: #EEF4FF; color: #2B7FFF;
+  font-size: 10px; font-weight: 500;
+  padding: 2px 8px; border-radius: 20px;
+  border: 1px solid #C8DCFF;
+  white-space: nowrap;
+}
+
+.policy-subtag {
+  background: #FFF4E8; color: #FF7A20;
+  font-size: 10px; font-weight: 500;
+  padding: 2px 8px; border-radius: 20px;
+  border: 1px solid #FFD0A0;
+  white-space: nowrap;
+}
+
+.policy-views {
+  font-size: 10px; color: #AABBCC;
+  display: flex; align-items: center; gap: 2px;
+  white-space: nowrap;
+}
+
+/* 最新模式：日期标签 */
+.policy-date {
+  font-size: 11px;
+  color: #AABBCC;
+  white-space: nowrap;
+}
+
+.policy-new-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #FF3B30, #FF6060);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  margin-right: 5px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+/* 右侧学校卡片 */
+.school-card {
+  width: 110px; flex-shrink: 0; border-radius: 14px;
+  background: linear-gradient(145deg, #5BA8FF, #3380EE);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 10px 8px;
+  position: relative; overflow: hidden; min-height: 80px;
+}
+.school-card::before {
+  content: ''; position: absolute; top:0; left:0; right:0; bottom:0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  border-radius: 14px;
+}
+.school-card-dots { display:flex; gap:4px; position:absolute; top:8px; right:10px; }
+.school-card-views {
+  position:absolute; top:8px; left:8px;
+  font-size:8px; color:rgba(255,255,255,0.95);
+  display:flex; align-items:center; gap:2px;
+  z-index:1; white-space:nowrap;
+  background:rgba(0,0,0,0.15);
+  padding:2px 5px; border-radius:8px;
+}
+.school-card-dot { width:6px; height:6px; border-radius:50%; }
+.dot-red { background:#FF6B6B; }
+.dot-yellow { background:#FFD060; }
+.dot-green { background:#60CC80; }
+.school-name {
+  font-size:14px; font-weight:700; color:#fff;
+  text-align:center; line-height:1.4; margin-top:14px; position:relative; z-index:1;
+}
+
+/* 底部 home bar */
+.home-bar {
+  height:34px; flex-shrink:0; display:flex; align-items:center;
+  justify-content:center; background:#fff;
+}
+.home-bar-line {
+  width:120px; height:4px; background:#1A2C5B;
+  border-radius:2px; opacity:0.15;
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons"><span>▐▐▐</span><span>●</span><span>🔋</span></div>
+    </div>
+    <div class="nav-bar">
+      <div class="nav-back" onclick="location.href='preview_home.html'">＜</div>
+      <div class="nav-right">
+        <span class="nav-dots">•••</span>
+        <div class="nav-circle"><div class="nav-circle-inner"></div></div>
+      </div>
+    </div>
+    <div class="hero-deco">
+      <div class="deco-card deco-card-1">📋</div>
+      <div class="deco-card deco-card-2">📌</div>
+      <div class="deco-card deco-card-3">🏫</div>
+    </div>
+    <div class="hero-title">最新各地升学政策</div>
+    <div class="search-bar" onclick="location.href='preview_search.html'">
+      <span class="search-icon">🔍</span>
+      <span class="search-placeholder">搜索</span>
+    </div>
+  </div>
+
+  <!-- 切换 Tab -->
+  <div class="tab-switch">
+    <div class="tab-item active" id="tab-new" onclick="switchTab('new')">最新</div>
+    <div class="tab-sep"></div>
+    <div class="tab-item" id="tab-hot" onclick="switchTab('hot')">最热</div>
+  </div>
+
+  <!-- 列表（可滚动区域） -->
+  <div class="phone-content">
+    <div class="policy-list" id="policyList"></div>
+  </div>
+  <div class="home-bar"><div class="home-bar-line"></div></div>
+</div>
+
+<script>
+const hotData = [
+  { title:'2024年北京市第十九中学科技特长生政策', tag:'高中', subtag:'强基计划', subtag2:'自主招生', views:8000, school:'广渠门中学' },
+  { title:'2024年上海市实验学校科技特长生招生方案', tag:'高中', subtag:'科技特长生', views:7310, school:'上海实验学校' },
+  { title:'2024年广州市执信中学特长生招生政策', tag:'高中', subtag:'强基计划', views:6540, school:'执信中学' },
+  { title:'2024年深圳市南山外国语学校信息特长生简章', tag:'初中', subtag:'科技特长生', views:5230, school:'南山外国语学校' },
+  { title:'2024年成都石室中学科技特长生招生政策', tag:'高中', subtag:'科技特长生', views:4120, school:'石室中学' },
+  { title:'2024年杭州学军中学信息特长生招生', tag:'高中', subtag:'强基计划', views:3545, school:'学军中学' },
+  { title:'2024年武汉市第二中学科技特长生招生简章', tag:'高中', subtag:'科技特长生', views:680, school:'武汉第二中学' },
+  { title:'2023年西安交大附中信息学特长生政策', tag:'高中', subtag:'强基计划', views:420, school:'西安交大附中' },
+  { title:'2024年南京市金陵中学信息学招生简章', tag:'高中', subtag:'科技特长生', views:95, school:'金陵中学' },
+];
+
+const newData = [
+  { title:'2025年北京市第十九中学科技特长生招生公告', tag:'高中', subtag:'强基计划', subtag2:'自主招生', views:3, school:'北京一七一中学', date:'2025-04-08', isNew:true },
+  { title:'2025年上海市七宝中学信息学特长生招生简章', tag:'高中', subtag:'科技特长生', views:1, school:'七宝中学', date:'2025-04-07', isNew:true },
+  { title:'2024年北京市第十九中学科技特长生政策', tag:'高中', subtag:'强基计划', views:8, school:'四川外国语大学重庆科学城中学校', date:'2024-04-05' },
+  { title:'2024年北京市第十九中学', tag:'高中', subtag:'科技特长生', views:5, school:'东直门中学', date:'2024-04-03' },
+  { title:'2024年北京市第十九中学科技特长生政策', tag:'高中', subtag:'科技特长生', views:7, school:'北京五十五中学', date:'2024-04-01' },
+  { title:'2024年广州市执信中学特长生招生政策', tag:'高中', subtag:'强基计划', views:2, school:'执信中学', date:'2024-03-28' },
+];
+
+function renderHot() {
+  const list = document.getElementById('policyList');
+  list.innerHTML = hotData.map((item, i) => {
+    const url = `preview_detail.html?title=${encodeURIComponent(item.title)}`;
+    return `
+    <div class="policy-item" onclick="location.href='${url}'" style="cursor:pointer;">
+      <div class="policy-left">
+        <div class="policy-title">${item.title}</div>
+        <div class="policy-meta">
+          <span class="policy-tag">${item.tag}</span>
+          ${item.subtag ? `<span class="policy-subtag">${item.subtag}</span>` : ''}
+          ${item.subtag2 ? `<span class="policy-subtag">${item.subtag2}</span>` : ''}
+        </div>
+      </div>
+      <div class="school-card">
+        <div class="school-card-dots">
+          <div class="school-card-dot dot-red"></div>
+          <div class="school-card-dot dot-yellow"></div>
+          <div class="school-card-dot dot-green"></div>
+        </div>
+        ${item.views >= 1000 ? `<div class="school-card-views"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="2" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/></svg> ${(item.views / 1000).toFixed(1).replace(/\.0$/, '') + 'k'}</div>` : ''}
+        <div class="school-name">${item.school}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderNew() {
+  const list = document.getElementById('policyList');
+  list.innerHTML = newData.map(item => {
+    const url = `preview_detail.html?title=${encodeURIComponent(item.title)}`;
+    return `
+    <div class="policy-item" onclick="location.href='${url}'" style="cursor:pointer;">
+      <div class="policy-left">
+        <div class="policy-title">${item.isNew ? '<span class="policy-new-badge">NEW</span>' : ''}${item.title}</div>
+        <div class="policy-meta">
+          <span class="policy-tag">${item.tag}</span>
+          ${item.subtag ? `<span class="policy-subtag">${item.subtag}</span>` : ''}
+          ${item.subtag2 ? `<span class="policy-subtag">${item.subtag2}</span>` : ''}
+        </div>
+      </div>
+      <div class="school-card">
+        <div class="school-card-dots">
+          <div class="school-card-dot dot-red"></div>
+          <div class="school-card-dot dot-yellow"></div>
+          <div class="school-card-dot dot-green"></div>
+        </div>
+        <div class="school-name">${item.school}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function switchTab(type) {
+  document.getElementById('tab-hot').classList.toggle('active', type === 'hot');
+  document.getElementById('tab-new').classList.toggle('active', type === 'new');
+  if (type === 'hot') renderHot();
+  else renderNew();
+}
+
+// 默认展示最新
+renderNew();
+</script>
+</body>
+</html>
