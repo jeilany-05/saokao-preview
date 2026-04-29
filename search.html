@@ -104,8 +104,51 @@
     font-family: inherit;
   }
 
-  /* 内容区 */
-  .content-area { flex: 1; background: #fff; }
+  /* 历史记录区 */
+  .history-area {
+    flex: 1;
+    background: #fff;
+    padding: 16px 16px 0;
+    overflow-y: auto;
+  }
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .history-title {
+    font-size: 14px;
+    color: #999;
+    font-weight: 500;
+  }
+  .history-clear {
+    font-size: 13px;
+    color: #999;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: 0;
+  }
+  .history-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .history-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #f4f6fa;
+    border-radius: 16px;
+    font-size: 13px;
+    color: #444;
+    cursor: pointer;
+  }
+  .history-tag:active { background: #e8ecf4; }
+  .history-empty { display: none; }
 
   /* ── iOS 键盘 ── */
   .keyboard {
@@ -233,8 +276,14 @@
     </div>
   </div>
 
-  <!-- 空白内容区 -->
-  <div class="content-area"></div>
+  <!-- 历史记录区 -->
+  <div class="history-area" id="historyArea">
+    <div class="history-header" id="historyHeader">
+      <span class="history-title">搜索历史</span>
+      <button class="history-clear" id="clearBtn">清空</button>
+    </div>
+    <div class="history-tags" id="historyTags"></div>
+  </div>
 
   <!-- iOS 键盘 -->
   <div class="keyboard">
@@ -284,12 +333,60 @@
 </div>
 
 <script>
+  const HISTORY_KEY = 'search_history';
+  const MAX_HISTORY = 10;
+
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveHistory(list) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  }
+
+  function addHistory(q) {
+    if (!q) return;
+    let list = getHistory().filter(item => item !== q);
+    list.unshift(q);
+    if (list.length > MAX_HISTORY) list = list.slice(0, MAX_HISTORY);
+    saveHistory(list);
+  }
+
+  function renderHistory() {
+    const list = getHistory();
+    const header = document.getElementById('historyHeader');
+    const tags = document.getElementById('historyTags');
+    if (list.length === 0) {
+      header.style.display = 'none';
+      tags.innerHTML = '';
+      return;
+    }
+    header.style.display = 'flex';
+    tags.innerHTML = list.map(q =>
+      `<span class="history-tag" data-q="${encodeURIComponent(q)}">🕐 ${q}</span>`
+    ).join('');
+    tags.querySelectorAll('.history-tag').forEach(el => {
+      el.addEventListener('click', () => {
+        const q = decodeURIComponent(el.dataset.q);
+        addHistory(q);
+        window.location.href = `search_result.html?q=${encodeURIComponent(q)}`;
+      });
+    });
+  }
+
   document.getElementById('backBtn').addEventListener('click', () => {
     window.location.href = 'policy_list.html';
   });
 
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    saveHistory([]);
+    renderHistory();
+  });
+
   function doSearch() {
     const q = document.getElementById('searchInput').value.trim();
+    addHistory(q);
     window.location.href = `search_result.html?q=${encodeURIComponent(q)}`;
   }
 
@@ -297,6 +394,8 @@
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
   });
+
+  renderHistory();
 </script>
 </body>
 </html>
